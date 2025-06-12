@@ -12,8 +12,8 @@ func GoodsList(router http2.Router) {
 		middleware.EmptyChain,
 		func(context http2.Context) (any, error) {
 			input := service.GoodsIn{
-				Limit:  http2.FormInt(context, "Limit"),
-				Offset: http2.FormInt(context, "Offset"),
+				Limit:  http2.FormInt(context, "limit"),
+				Offset: http2.FormInt(context, "offset"),
 			}
 
 			return context.Services().Goods().Goods(input)
@@ -38,6 +38,7 @@ func GoodsCreate(router http2.Router) {
 			input := service.CreateGoodIn{
 				ID:        http2.FormInt(context, "id"),
 				ProjectID: http2.FormInt(context, "projectId"),
+				Name:      rb.Name,
 			}
 
 			return context.Services().Goods().CreateGood(input)
@@ -60,11 +61,13 @@ func GoodsUpdate(router http2.Router) {
 			}
 
 			input := service.UpdateGoodIn{
-				ID:        http2.FormInt(context, "id"),
-				ProjectID: http2.FormInt(context, "projectId"),
+				ID:          http2.FormInt(context, "id"),
+				ProjectID:   http2.FormInt(context, "projectId"),
+				Name:        rb.Name,
+				Description: rb.Description,
 			}
 
-			return nil, context.Services().Goods().UpdateGood(input)
+			return context.Services().Goods().UpdateGood(input)
 		})
 }
 
@@ -79,7 +82,7 @@ func GoodsDelete(router http2.Router) {
 				ProjectID: http2.FormInt(context, "projectId"),
 			}
 
-			return nil, context.Services().Goods().DeleteGood(input)
+			return context.Services().Goods().DeleteGood(input)
 		})
 }
 
@@ -98,8 +101,9 @@ func GoodsReprioritiize(router http2.Router) {
 			}
 
 			input := service.ReprioritiizeGoodIn{
-				ID:        http2.FormInt(context, "id"),
-				ProjectID: http2.FormInt(context, "projectId"),
+				ID:          http2.FormInt(context, "id"),
+				ProjectID:   http2.FormInt(context, "projectId"),
+				NewPriority: rb.NewPriority,
 			}
 
 			return context.Services().Goods().ReprioritiizeGood(input)
