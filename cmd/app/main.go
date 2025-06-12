@@ -30,7 +30,7 @@ func appRun(ctx context.Context) {
 }
 
 func waitInterrupt(cancel context.CancelFunc) {
-	interrupt := make(chan os.Signal)
+	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)
 	slog.Info("main: waitInterrupt: Received signal " + (<-interrupt).String())
 	cancel()

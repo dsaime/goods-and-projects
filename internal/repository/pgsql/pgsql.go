@@ -2,6 +2,8 @@ package pgsql
 
 import (
 	"github.com/jmoiron/sqlx"
+
+	"github.com/dsaime/goods-and-projects/internal/domain"
 )
 
 type Factory struct {
@@ -23,6 +25,10 @@ func InitFactory(cfg Config) (*Factory, error) {
 	}, nil
 }
 
-func (f Factory) Close() error {
+func (f *Factory) Close() error {
 	return f.db.Close()
+}
+
+func (f *Factory) NewGoodsRepository() domain.GoodsRepository {
+	panic("implement me")
 }

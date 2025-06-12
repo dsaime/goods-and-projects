@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/dsaime/goods-and-projects/internal/domain"
 	"github.com/dsaime/goods-and-projects/internal/repository/pgsql"
 )
 
 type repositories struct {
-	chats    chatt.Repository
-	users    userr.Repository
-	sessions sessionn.Repository
+	goods domain.GoodsRepository
 }
 
 func initPgsqlRepositories(config pgsql.Config) (*repositories, func(), error) {
@@ -20,9 +19,7 @@ func initPgsqlRepositories(config pgsql.Config) (*repositories, func(), error) {
 	}
 
 	rs := &repositories{
-		chats:    factory.NewChattRepository(),
-		users:    factory.NewUserrRepository(),
-		sessions: factory.NewSessionnRepository(),
+		goods: factory.NewGoodsRepository(),
 	}
 
 	return rs, func() {

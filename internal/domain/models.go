@@ -17,3 +17,13 @@ type Good struct {
 	Removed     bool
 	CreatedAt   time.Time
 }
+
+type GoodsRepository interface {
+	List(filter GoodsFilter) ([]Good, error)
+	Upsert(Good) error
+}
+
+type GoodsFilter struct {
+	Limit  int
+	Offset int
+}
