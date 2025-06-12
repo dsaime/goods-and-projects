@@ -8,9 +8,9 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/saime-0/nice-pea-chat/internal/controller/http2"
-	registerHandler "github.com/saime-0/nice-pea-chat/internal/controller/http2/register_handler"
-	"github.com/saime-0/nice-pea-chat/internal/controller/http2/router"
+	"github.com/dsaime/goods-and-projects/internal/controller/http2"
+	registerHandler "github.com/dsaime/goods-and-projects/internal/controller/http2/register_handler"
+	"github.com/dsaime/goods-and-projects/internal/controller/http2/router"
 )
 
 func initHttpServer(ss *services) *http.Server {
@@ -51,28 +51,10 @@ func registerHandlers(r http2.Router) {
 	// Служебные
 	registerHandler.Ping(r)
 
-	// OAuth /oauth
-	registerHandler.OAuthInitRegistration(r)
-	registerHandler.OAuthCompleteRegistrationCallback(r)
-
-	// Аутентификация /auth
-	registerHandler.LoginByPassword(r)
-	registerHandler.RegistrationByPassword(r)
-
-	// Чат /chats
-	registerHandler.MyChats(r)
-	registerHandler.CreateChat(r)
-	registerHandler.UpdateChatName(r)
-	registerHandler.LeaveChat(r)
-	registerHandler.ChatMembers(r)
-	registerHandler.ChatInvitations(r)
-
-	// Участники /chats//members
-	registerHandler.DeleteMember(r)
-
-	// Приглашения /invitations
-	registerHandler.MyInvitations(r)
-	registerHandler.SendInvitation(r)
-	registerHandler.AcceptInvitation(r)
-	registerHandler.CancelInvitation(r)
+	//  Товары /goods
+	registerHandler.GoodsCreate(r)
+	registerHandler.GoodsList(r)
+	registerHandler.GoodsUpdate(r)
+	registerHandler.GoodsDelete(r)
+	registerHandler.GoodsReprioritiize(r)
 }
