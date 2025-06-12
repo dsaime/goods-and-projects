@@ -30,10 +30,6 @@ func (r *rwContext) Services() http2.Services {
 	return r.services
 }
 
-func (r *rwContext) SetRequestID(id string) {
-	r.requestID = id
-}
-
 func (r *rwContext) SetRequest(req *http.Request) {
 	r.request = req
 }

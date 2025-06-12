@@ -38,9 +38,6 @@ type RWContext interface {
 	// Context для расширения существующего контекста
 	Context
 
-	// SetRequestID устанавливает уникальный идентификатор запроса
-	SetRequestID(string)
-
 	// SetRequest устанавливает HTTP-запрос
 	SetRequest(*http.Request)
 }
