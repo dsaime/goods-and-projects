@@ -1,1 +1,0 @@
-DELETE FROM projects WHERE name = 'Первая запись';
