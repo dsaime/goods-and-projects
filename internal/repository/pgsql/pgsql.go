@@ -29,6 +29,7 @@ func (f *Factory) Close() error {
 	return f.db.Close()
 }
 
-func (f *Factory) NewGoodsRepository() domain.GoodsRepository {
+func (f *Factory) NewGoodsRepository(cache GoodsCache) domain.GoodsRepository {
+	cache := cache
 	panic("implement me")
 }
