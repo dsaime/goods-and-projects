@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/nullism/bqb"
 
 	"github.com/dsaime/goods-and-projects/internal/domain"
 )
@@ -65,7 +66,36 @@ func (r *GoodsRepository) Create(goodForSave domain.GoodForSave) (domain.Good, e
 }
 
 func (r *GoodsRepository) List(filter domain.GoodsFilter) ([]domain.Good, error) {
+	query, args, err := buildListQuery(filter)
+	if err != nil {
+		return nil, err
+	}
 
+	var goods []domain.Good
+	if err = r.db.Select(&goods, query, args...); err != nil {
+		return nil, err
+	}
+
+	return goods, nil
+}
+
+func buildListQuery(filter domain.GoodsFilter) (string, []any, error) {
+	selFrom := bqb.New("SELECT * FROM goods")
+
+	where := bqb.Optional("WHERE")
+	if filter.PriorityGreaterThan > 0 {
+		where = where.And("priority > ?", filter.PriorityGreaterThan)
+	}
+
+	q := bqb.New("? ?", selFrom, where)
+	if filter.Offset > 0 {
+		q = q.Space("OFFSET ?", filter.Offset)
+	}
+	if filter.Limit > 0 {
+		q = q.Space("LIMIT ?", filter.Limit)
+	}
+
+	return q.ToPgsql()
 }
 
 func (r *GoodsRepository) InTransaction(fn func(txRepo domain.GoodsRepository) error) error {
