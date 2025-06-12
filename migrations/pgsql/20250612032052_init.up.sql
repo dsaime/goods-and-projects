@@ -11,7 +11,7 @@ CREATE TABLE goods
     project_id INTEGER, -- id компании
     name TEXT NOT NULL DEFAULT '', -- название
     description TEXT NOT NULL DEFAULT '', -- описание
-    priority INTEGER NOT NULL DEFAULT 0, -- приоритет
+    priority INTEGER NOT NULL DEFAULT (SELECT MAX(priority)+1 FROM goods), -- приоритет
     removed BOOLEAN NOT NULL DEFAULT FALSE, -- статус удаления
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- дата и время
     PRIMARY KEY (id, project_id)

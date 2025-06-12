@@ -55,8 +55,8 @@ func (r *GoodsRepository) Create(goodForSave domain.GoodForSave) (domain.Good, e
 
 	var good domain.Good
 	if err := r.db.Select(&good, `
-		INSERT INTO goods (id, project_id, name, priority)
-		VALUES ($1, $2, $3, (SELECT MAX(priority)+1 FROM goods))
+		INSERT INTO goods (id, project_id, name)
+		VALUES ($1, $2, $3)
 		RETURNING goods.*
 	`, goodForSave.ID, goodForSave.ProjectID, goodForSave.Name); err != nil {
 		return domain.Good{}, err
