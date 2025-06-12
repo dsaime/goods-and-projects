@@ -1,0 +1,28 @@
+package pgsql
+
+import (
+	"github.com/jmoiron/sqlx"
+)
+
+type Factory struct {
+	db *sqlx.DB
+}
+
+func InitFactory(cfg Config) (*Factory, error) {
+	conn, err := sqlx.Connect("postgres", cfg.DSN)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = conn.Ping(); err != nil {
+		return nil, err
+	}
+
+	return &Factory{
+		db: conn,
+	}, nil
+}
+
+func (f Factory) Close() error {
+	return f.db.Close()
+}

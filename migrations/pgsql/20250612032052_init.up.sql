@@ -1,0 +1,19 @@
+CREATE TABLE projects
+(
+    id SERIAL PRIMARY KEY , -- id записи
+    name TEXT NOT NULL DEFAULT '', -- название
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP -- дата и время
+);
+
+CREATE TABLE goods
+(
+    id INTEGER, -- id записи
+    project_id INTEGER, -- id компании
+    name TEXT NOT NULL DEFAULT '', -- название
+    description TEXT NOT NULL DEFAULT '', -- описание
+    priority INTEGER NOT NULL DEFAULT '', -- приоритет
+    removed BOOLEAN NOT NULL DEFAULT FALSE, -- статус удаления
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- дата и время
+
+    PRIMARY KEY (id, project_id)
+);
