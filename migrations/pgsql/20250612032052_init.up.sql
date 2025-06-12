@@ -14,7 +14,7 @@ CREATE TABLE goods
     priority INTEGER NOT NULL DEFAULT 0, -- приоритет
     removed BOOLEAN NOT NULL DEFAULT FALSE, -- статус удаления
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- дата и время
-    PRIMARY KEY (id, project_id),
+    PRIMARY KEY (id, project_id)
 );
 
 CREATE INDEX goods_name_idx ON goods (name);

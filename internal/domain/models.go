@@ -1,6 +1,8 @@
 package domain
 
-import "time"
+import (
+	"time"
+)
 
 type Project struct {
 	ID        int
@@ -20,10 +22,28 @@ type Good struct {
 
 type GoodsRepository interface {
 	List(filter GoodsFilter) ([]Good, error)
-	Upsert(Good) error
+	Update(GoodForUpdate) (Good, error)
+	Create(GoodForSave) (Good, error)
+	InTransaction(func(txRepo GoodsRepository) error) error
+}
+
+type GoodForUpdate struct {
+	ID          int
+	Name        string
+	Description string
+	Priority    int
+	Removed     bool
+}
+
+type GoodForSave struct {
+	ID        int
+	ProjectID int
+	Name      string
 }
 
 type GoodsFilter struct {
-	Limit  int
-	Offset int
+	//WithRemoved         bool
+	PriorityGreaterThan int
+	Limit               int
+	Offset              int
 }
