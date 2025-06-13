@@ -22,6 +22,7 @@ type Good struct {
 
 type GoodsRepository interface {
 	List(filter GoodsFilter) ([]Good, error)
+	FindByID(int) (Good, error)
 	Update(GoodForUpdate) (Good, error)
 	Create(GoodForSave) (Good, error)
 	InTransaction(func(txRepo GoodsRepository) error) error

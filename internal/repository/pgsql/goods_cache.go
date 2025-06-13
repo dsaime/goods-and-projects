@@ -6,7 +6,7 @@ import (
 
 // GoodsCache взаимодействует с кэшем, читать сохранить
 type GoodsCache interface {
-	Get(id int) (domain.Good, error)
-	Set(domain.Good) error
-	Delete(id int) error
+	Get(id int) (domain.Good, bool)
+	Save(goods ...domain.Good)
+	Delete(ids ...int)
 }

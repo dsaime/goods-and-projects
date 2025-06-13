@@ -30,6 +30,10 @@ func (f *Factory) Close() error {
 }
 
 func (f *Factory) NewGoodsRepository(cache GoodsCache) domain.GoodsRepository {
-	cache := cache
-	panic("implement me")
+	return &goodsRepository{
+		db:         f.db,
+		txBeginner: f.db,
+		isTx:       false,
+		cache:      cache,
+	}
 }

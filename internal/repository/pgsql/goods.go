@@ -10,19 +10,43 @@ import (
 	"github.com/dsaime/goods-and-projects/internal/domain"
 )
 
-type GoodsRepository struct {
+type goodsRepository struct {
 	db interface {
 		NamedExec(query string, arg interface{}) (sql.Result, error)
 		Exec(query string, args ...interface{}) (sql.Result, error)
 		Select(dest interface{}, query string, args ...interface{}) error
+		Get(dest interface{}, query string, args ...interface{}) error
 	}
 	txBeginner interface {
-		BeginTx() (*sqlx.Tx, error)
+		Beginx() (*sqlx.Tx, error)
 	}
-	isTx bool
+	isTx  bool
+	cache GoodsCache
 }
 
-func (r *GoodsRepository) Update(goodForUpdate domain.GoodForUpdate) (domain.Good, error) {
+func (r *goodsRepository) FindByID(id int) (domain.Good, error) {
+	if id == 0 {
+		return domain.Good{}, errors.New("ID не указан")
+	}
+
+	good, ok := r.cache.Get(id)
+	if ok {
+		return good, nil
+	}
+
+	err := r.db.Get(&good, `SELECT * FROM goods WHERE id = $1`, id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return domain.Good{}, domain.ErrGoodNotFound
+	} else if err != nil {
+		return domain.Good{}, err
+	}
+
+	r.cache.Save(good)
+
+	return good, nil
+}
+
+func (r *goodsRepository) Update(goodForUpdate domain.GoodForUpdate) (domain.Good, error) {
 	if goodForUpdate.ID == 0 {
 		return domain.Good{}, errors.New("ID не указан")
 	}
@@ -45,10 +69,12 @@ func (r *GoodsRepository) Update(goodForUpdate domain.GoodForUpdate) (domain.Goo
 		return domain.Good{}, err
 	}
 
+	r.cache.Delete(good.ID)
+
 	return good, nil
 }
 
-func (r *GoodsRepository) Create(goodForSave domain.GoodForSave) (domain.Good, error) {
+func (r *goodsRepository) Create(goodForSave domain.GoodForSave) (domain.Good, error) {
 	if goodForSave.ID == 0 || goodForSave.ProjectID == 0 {
 		return domain.Good{}, errors.New("ID или ProjectID не указан")
 	}
@@ -65,8 +91,8 @@ func (r *GoodsRepository) Create(goodForSave domain.GoodForSave) (domain.Good, e
 	return good, nil
 }
 
-func (r *GoodsRepository) List(filter domain.GoodsFilter) ([]domain.Good, error) {
-	query, args, err := buildListQuery(filter)
+func (r *goodsRepository) List(filter domain.GoodsFilter) ([]domain.Good, error) {
+	query, args, err := buildQueryList(filter, r.isTx)
 	if err != nil {
 		return nil, err
 	}
@@ -76,10 +102,12 @@ func (r *GoodsRepository) List(filter domain.GoodsFilter) ([]domain.Good, error)
 		return nil, err
 	}
 
+	r.cache.Save(goods...)
+
 	return goods, nil
 }
 
-func buildListQuery(filter domain.GoodsFilter) (string, []any, error) {
+func buildQueryList(filter domain.GoodsFilter, forUpdate bool) (string, []any, error) {
 	selFrom := bqb.New("SELECT * FROM goods")
 
 	where := bqb.Optional("WHERE")
@@ -94,19 +122,22 @@ func buildListQuery(filter domain.GoodsFilter) (string, []any, error) {
 	if filter.Limit > 0 {
 		q = q.Space("LIMIT ?", filter.Limit)
 	}
+	if forUpdate {
+		q = q.Space("FOR UPDATE")
+	}
 
 	return q.ToPgsql()
 }
 
-func (r *GoodsRepository) InTransaction(fn func(txRepo domain.GoodsRepository) error) error {
+func (r *goodsRepository) InTransaction(fn func(txRepo domain.GoodsRepository) error) error {
 	// Начинаем транзакцию
-	tx, err := r.txBeginner.BeginTx()
+	tx, err := r.txBeginner.Beginx()
 	if err != nil {
 		return err
 	}
 
 	// Создаем транзакционный репозиторий
-	txRepo := &GoodsRepository{
+	txRepo := &goodsRepository{
 		db:         tx,
 		txBeginner: r.txBeginner,
 		isTx:       true,
