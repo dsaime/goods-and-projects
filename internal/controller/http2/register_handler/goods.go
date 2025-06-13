@@ -36,7 +36,6 @@ func GoodsCreate(router http2.Router) {
 			}
 
 			input := service.CreateGoodIn{
-				ID:        http2.FormInt(context, "id"),
 				ProjectID: http2.FormInt(context, "projectId"),
 				Name:      rb.Name,
 			}
@@ -88,7 +87,7 @@ func GoodsDelete(router http2.Router) {
 
 func GoodsReprioritiize(router http2.Router) {
 	type requestBody struct {
-		NewPriority string `json:"newPriority"`
+		NewPriority int `json:"newPriority"`
 	}
 	router.HandleFunc(
 		"PATH /goods/reprioritiize",

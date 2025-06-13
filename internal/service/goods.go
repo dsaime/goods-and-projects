@@ -263,16 +263,99 @@ func (g *Goods) DeleteGood(in DeleteGoodIn) (DeleteGoodOut, error) {
 type ReprioritiizeGoodIn struct {
 	ID          int
 	ProjectID   int
-	NewPriority string
+	NewPriority int
+}
+
+func (in ReprioritiizeGoodIn) Validate() error {
+	if in.ID <= 0 {
+		return errors.New("GetID is required")
+	}
+	if in.ProjectID <= 0 {
+		return errors.New("projectID is required")
+	}
+	if in.NewPriority <= 0 {
+		return errors.New("newPriority is required")
+	}
+
+	return nil
 }
 
 type ReprioritiizeGoodOut struct {
-	Priorities []struct {
-		ID       int
-		Priority int
-	}
+	Priorities []ReprioritiizeGoodOutPriority
+}
+
+type ReprioritiizeGoodOutPriority struct {
+	ID       int
+	Priority int
 }
 
 func (g *Goods) ReprioritiizeGood(in ReprioritiizeGoodIn) (ReprioritiizeGoodOut, error) {
-	panic("implement me")
+	if err := in.Validate(); err != nil {
+		return ReprioritiizeGoodOut{}, err
+	}
+
+	var priorities []ReprioritiizeGoodOutPriority
+	err := g.Repo.InTransaction(func(txRepo domain.GoodsRepository) error {
+		goodForReprioritiize, err := txRepo.Find(domain.GoodFilter{
+			ID:        in.ID,
+			ProjectID: in.ProjectID,
+		})
+		if err != nil {
+			return err
+		}
+		if goodForReprioritiize.Priority == in.NewPriority {
+			return nil
+		}
+
+		goods, err := txRepo.List(domain.GoodsFilter{
+			PriorityGreaterThan: in.NewPriority - 1,
+		})
+		if err != nil {
+			return err
+		}
+		for _, good := range goods {
+			if good.ID == in.ID && good.ProjectID == in.ProjectID {
+				continue
+			}
+			updatedGood, err := updatePriority(txRepo, good, good.Priority+1)
+			if err != nil {
+				return err
+			}
+			addReprioritiizeElem(&priorities, updatedGood)
+		}
+		updatedGood, err := updatePriority(txRepo, goodForReprioritiize, in.NewPriority)
+		if err != nil {
+			return err
+		}
+		addReprioritiizeElem(&priorities, updatedGood)
+
+		return err
+	})
+	if err != nil {
+		return ReprioritiizeGoodOut{}, err
+	}
+
+	return ReprioritiizeGoodOut{
+		Priorities: priorities,
+	}, err
+}
+
+func updatePriority(txRepo domain.GoodsRepository, good domain.Good, newPriority int) (domain.Good, error) {
+	forUpdate := domain.GoodForUpdate{
+		ID:          good.ID,
+		ProjectID:   good.ProjectID,
+		Name:        good.Name,
+		Description: good.Description,
+		Priority:    newPriority,
+		Removed:     good.Removed,
+	}
+
+	return txRepo.Update(forUpdate)
+}
+
+func addReprioritiizeElem(s *[]ReprioritiizeGoodOutPriority, good domain.Good) {
+	*s = append(*s, ReprioritiizeGoodOutPriority{
+		ID:       good.ID,
+		Priority: good.Priority,
+	})
 }
