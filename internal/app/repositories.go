@@ -12,14 +12,18 @@ type repositories struct {
 	goods domain.GoodsRepository
 }
 
-func initPgsqlRepositories(config pgsql.Config) (*repositories, func(), error) {
+type pgsqlDeps interface {
+	GoodsCache() pgsql.GoodsCache
+}
+
+func initPgsqlRepositories(config pgsql.Config, deps pgsqlDeps) (*repositories, func(), error) {
 	factory, err := pgsql.InitFactory(config)
 	if err != nil {
 		return nil, func() {}, fmt.Errorf("pgsql.InitFactory: %w", err)
 	}
 
 	rs := &repositories{
-		goods: factory.NewGoodsRepository(),
+		goods: factory.NewGoodsRepository(deps.GoodsCache()),
 	}
 
 	return rs, func() {
