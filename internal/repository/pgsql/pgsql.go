@@ -4,6 +4,8 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	"github.com/dsaime/goods-and-projects/internal/domain"
+
+	_ "github.com/lib/pq"
 )
 
 type Factory struct {

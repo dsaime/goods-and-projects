@@ -20,23 +20,37 @@ type Good struct {
 	CreatedAt   time.Time
 }
 
+func (g Good) GetID() int {
+	return g.ID
+}
+
+func (g Good) GetProjectID() int {
+	return g.ID
+}
+
 type GoodsRepository interface {
 	List(filter GoodsFilter) ([]Good, error)
-	FindByID(int) (Good, error)
+	Find(filter GoodFilter) (Good, error)
 	Update(GoodForUpdate) (Good, error)
-	Create(GoodForSave) (Good, error)
+	Create(GoodForCreate) (Good, error)
 	InTransaction(func(txRepo GoodsRepository) error) error
+}
+
+type GoodFilter struct {
+	ID        int
+	ProjectID int
 }
 
 type GoodForUpdate struct {
 	ID          int
+	ProjectID   int
 	Name        string
 	Description string
 	Priority    int
 	Removed     bool
 }
 
-type GoodForSave struct {
+type GoodForCreate struct {
 	ID        int
 	ProjectID int
 	Name      string

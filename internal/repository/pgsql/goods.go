@@ -24,17 +24,24 @@ type goodsRepository struct {
 	cache GoodsCache
 }
 
-func (r *goodsRepository) FindByID(id int) (domain.Good, error) {
-	if id == 0 {
-		return domain.Good{}, errors.New("ID не указан")
+func (r *goodsRepository) Find(filter domain.GoodFilter) (domain.Good, error) {
+	if filter.ID == 0 || filter.ProjectID == 0 {
+		return domain.Good{}, errors.New("ID или ProjectID не указан")
 	}
 
-	good, ok := r.cache.Get(id)
+	good, ok := r.cache.Get(domain.Good{
+		ID:        filter.ID,
+		ProjectID: filter.ProjectID,
+	})
 	if ok {
 		return good, nil
 	}
 
-	err := r.db.Get(&good, `SELECT * FROM goods WHERE id = $1`, id)
+	err := r.db.Get(&good, `
+		SELECT * FROM goods
+		WHERE id = $1 
+		  AND project_id = $2
+	`, filter.ID, filter.ProjectID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return domain.Good{}, domain.ErrGoodNotFound
 	} else if err != nil {
@@ -47,8 +54,8 @@ func (r *goodsRepository) FindByID(id int) (domain.Good, error) {
 }
 
 func (r *goodsRepository) Update(goodForUpdate domain.GoodForUpdate) (domain.Good, error) {
-	if goodForUpdate.ID == 0 {
-		return domain.Good{}, errors.New("ID не указан")
+	if goodForUpdate.ID == 0 || goodForUpdate.ProjectID == 0 {
+		return domain.Good{}, errors.New("ID или ProjectID не указан")
 	}
 
 	var good domain.Good
@@ -69,12 +76,12 @@ func (r *goodsRepository) Update(goodForUpdate domain.GoodForUpdate) (domain.Goo
 		return domain.Good{}, err
 	}
 
-	r.cache.Delete(good.ID)
+	r.cache.Delete(good)
 
 	return good, nil
 }
 
-func (r *goodsRepository) Create(goodForSave domain.GoodForSave) (domain.Good, error) {
+func (r *goodsRepository) Create(goodForSave domain.GoodForCreate) (domain.Good, error) {
 	if goodForSave.ID == 0 || goodForSave.ProjectID == 0 {
 		return domain.Good{}, errors.New("ID или ProjectID не указан")
 	}

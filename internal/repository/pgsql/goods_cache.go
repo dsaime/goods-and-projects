@@ -6,7 +6,12 @@ import (
 
 // GoodsCache взаимодействует с кэшем, читать сохранить
 type GoodsCache interface {
-	Get(id int) (domain.Good, bool)
+	Get(CacheKey) (domain.Good, bool)
 	Save(goods ...domain.Good)
-	Delete(ids ...int)
+	Delete(...CacheKey)
+}
+
+type CacheKey interface {
+	GetID() int
+	GetProjectID() int
 }
