@@ -11,18 +11,18 @@ import (
 func Run(ctx context.Context) error {
 	g, ctx := errgroup.WithContext(ctx)
 
+	// Инициализация адаптеров
+	adapterss := initAdapters()
+
 	// Инициализация репозиториев
-	repos, closeRepos, err := initPgsqlRepositories(pgsql.Config{})
+	repos, closeRepos, err := initPgsqlRepositories(pgsql.Config{}, adapterss)
 	if err != nil {
 		return err
 	}
 	defer closeRepos()
 
-	// Инициализация адаптеров
-	adaps := initAdapters()
-
 	// Инициализация сервисов
-	ss := initServices(repos, adaps)
+	ss := initServices(repos, adapterss)
 
 	// Инициализация и Запуск http контроллера
 	server := initHttpServer(ss)
