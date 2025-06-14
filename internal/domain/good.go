@@ -1,14 +1,6 @@
 package domain
 
-import (
-	"time"
-)
-
-type Project struct {
-	ID        int
-	Name      string
-	CreatedAt time.Time
-}
+import "time"
 
 type Good struct {
 	ID          int
