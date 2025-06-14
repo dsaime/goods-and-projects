@@ -1,12 +1,15 @@
 package app
 
 import (
-	dummyGoodsCache "github.com/dsaime/goods-and-projects/internal/adapter/dummy_goods_cache"
+	"errors"
+	"log/slog"
+
+	redisGoodsCache "github.com/dsaime/goods-and-projects/internal/adapter/redis_goods_cache"
+
 	"github.com/dsaime/goods-and-projects/internal/repository/pgsql"
 )
 
 type adapters struct {
-	//discovery      adapter.ServiceDiscovery
 	goodsCache pgsql.GoodsCache
 }
 
@@ -14,14 +17,19 @@ func (a *adapters) GoodsCache() pgsql.GoodsCache {
 	return a.goodsCache
 }
 
-//func (a *adapters) Discovery() adapter.ServiceDiscovery {
-//	return a.discovery
-//}
-//
+func initAdapters(config redisGoodsCache.Config) (*adapters, func(), error) {
+	goodsCache, err := redisGoodsCache.Init(config)
+	if err != nil {
+		return nil, nil, err
+	}
 
-func initAdapters() *adapters {
+	closer := func() {
+		if err := errors.Join(goodsCache.Close()); err != nil {
+			slog.Error("initAdapters: close: " + err.Error())
+		}
+	}
 
 	return &adapters{
-		goodsCache: dummyGoodsCache.GoodsCache{},
-	}
+		goodsCache: goodsCache,
+	}, closer, nil
 }

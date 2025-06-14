@@ -5,6 +5,7 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
+	redisGoodsCache "github.com/dsaime/goods-and-projects/internal/adapter/redis_goods_cache"
 	"github.com/dsaime/goods-and-projects/internal/repository/pgsql"
 )
 
@@ -12,7 +13,11 @@ func Run(ctx context.Context) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	// Инициализация адаптеров
-	adapterss := initAdapters()
+	adapterss, closeAdapters, err := initAdapters(redisGoodsCache.Config{})
+	if err != nil {
+		return err
+	}
+	defer closeAdapters()
 
 	// Инициализация репозиториев
 	repos, closeRepos, err := initPgsqlRepositories(pgsql.Config{}, adapterss)

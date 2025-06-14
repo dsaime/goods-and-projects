@@ -19,7 +19,7 @@ type pgsqlDeps interface {
 func initPgsqlRepositories(config pgsql.Config, deps pgsqlDeps) (*repositories, func(), error) {
 	factory, err := pgsql.InitFactory(config)
 	if err != nil {
-		return nil, func() {}, fmt.Errorf("pgsql.InitFactory: %w", err)
+		return nil, nil, fmt.Errorf("pgsql.InitFactory: %w", err)
 	}
 
 	rs := &repositories{
