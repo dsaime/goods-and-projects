@@ -18,8 +18,8 @@ services:
     env_file:
       - .env
     environment:
-      POSTGRES_USER: ${PGSQL_USER}
-      POSTGRES_PASSWORD: ${PGSQL_PASSWORD}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: gapdb
     ports:
       - "5432:5432"
@@ -40,7 +40,7 @@ services:
       - "-p"
       - "4222"
 
-# https://hub.docker.com/r/clickhouse/clickhouse-server/s
+# https://hub.docker.com/r/clickhouse/clickhouse-server/
   clickhouse:
     container_name: gap.clickhouse
     image: clickhouse/clickhouse-server:25.1
