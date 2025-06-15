@@ -23,7 +23,6 @@ func (g *GoodsCache) Close() error {
 }
 
 type Config struct {
-
 	// RedisURL это строка в формате redis[s]://[[username][:password]@][host][:port][/db-number],
 	// для подключения к redis.
 	//

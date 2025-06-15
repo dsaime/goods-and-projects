@@ -1,0 +1,71 @@
+package main
+
+import (
+	"context"
+	"errors"
+	"log/slog"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"github.com/urfave/cli/v3"
+
+	"github.com/dsaime/goods-and-projects/internal/app"
+)
+
+func main() {
+	slog.Info("main: Starting")
+	ctx, cancel := context.WithCancel(context.Background())
+	go appRun(ctx)
+	waitInterrupt(cancel)
+}
+
+func appRun(ctx context.Context) {
+	err := initCliCommand().Run(ctx, os.Args)
+	if err != nil && !errors.Is(err, context.Canceled) {
+		slog.Error("main: appRun: " + err.Error())
+		os.Exit(1)
+	}
+	slog.Info("main: appRun: ")
+	os.Exit(0)
+}
+
+func waitInterrupt(cancel context.CancelFunc) {
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)
+	slog.Info("main: waitInterrupt: Received signal " + (<-interrupt).String())
+	cancel()
+	slog.Info("main: waitInterrupt: Context canceled")
+	time.Sleep(3 * time.Second)
+}
+
+func initCliCommand() *cli.Command {
+	var cfg app.Config
+	return &cli.Command{
+		Name: "goods-and-projects",
+		Action: func(ctx context.Context, command *cli.Command) error {
+			return app.Run(ctx, cfg)
+		},
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:        "pgsql",
+				Destination: &cfg.Pgsql.DSN,
+				Usage:       "PostgreSQL connection string in format 'postgres://user:password@host:port/dbname'",
+				Required:    true,
+			},
+			&cli.StringFlag{
+				Name:        "redis-cache",
+				Destination: &cfg.Redis.RedisURL,
+				Usage:       "Redis connection string in format 'redis://[[username][:password]@]host[:port][/db-number]'",
+				Required:    true,
+			},
+			&cli.DurationFlag{
+				Name:        "cache-expiration",
+				Destination: &cfg.Redis.Expiration,
+				Usage:       "Cache expiration time",
+				Value:       time.Minute * 5,
+			},
+		},
+	}
+}

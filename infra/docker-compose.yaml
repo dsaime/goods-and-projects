@@ -1,7 +1,27 @@
 #volumes:
 #  gap.pgsql.data:
 
+networks:
+  gap.network:
+    external: true
+
 services:
+  server:
+    container_name: gap.server
+    build:
+      context: ../
+      dockerfile: Containerfile
+    networks:
+      gap.network:
+    depends_on:
+      - redis
+      - pgsql
+    command:
+      - "--redis-cache"
+      - "redis://localhost:6379"
+      - "--pgsql"
+      - "postgresql://postgres:postgres@localhost:5432/gapdb?sslmode=disable"
+
 # https://redis.io/docs/latest/operate/oss_and_stack/install/install-stack/docker/
   redis:
     container_name: gap.redis
@@ -9,20 +29,26 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
+    networks:
+      gap.network:
+        - aliases:
+            - redis.server
 
 # https://github.com/docker-library/docs/blob/master/postgres/README.md
   pgsql:
     container_name: gap.pgsql
     image: postgres:17
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: gapdb
     ports:
       - "5432:5432"
+    networks:
+      gap.network:
+        - aliases:
+            - pgsql.server
 #    volumes:
 #      - gap.pgsql.data:/var/lib/postgresql/data
 
@@ -34,6 +60,8 @@ services:
     ports:
       - "4222:4222"
       - "8222:8222" # http://127.0.0.1:8222/
+    networks:
+      gap.network:
     command:
       - "-m"
       - "8222"
@@ -50,3 +78,5 @@ services:
     environment:
       CLICKHOUSE_USER: clickhouse
       CLICKHOUSE_PASSWORD: clickhouse
+    networks:
+      gap.network:

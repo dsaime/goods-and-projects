@@ -17,8 +17,8 @@ func (a *adapters) GoodsCache() pgsql.GoodsCache {
 	return a.goodsCache
 }
 
-func initAdapters(config redisGoodsCache.Config) (*adapters, func(), error) {
-	goodsCache, err := redisGoodsCache.Init(config)
+func initAdapters(config Config) (*adapters, func(), error) {
+	goodsCache, err := redisGoodsCache.Init(config.Redis)
 	if err != nil {
 		return nil, nil, err
 	}

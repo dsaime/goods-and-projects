@@ -16,8 +16,8 @@ type pgsqlDeps interface {
 	GoodsCache() pgsql.GoodsCache
 }
 
-func initPgsqlRepositories(config pgsql.Config, deps pgsqlDeps) (*repositories, func(), error) {
-	factory, err := pgsql.InitFactory(config)
+func initPgsqlRepositories(config Config, deps pgsqlDeps) (*repositories, func(), error) {
+	factory, err := pgsql.InitFactory(config.Pgsql)
 	if err != nil {
 		return nil, nil, fmt.Errorf("pgsql.InitFactory: %w", err)
 	}
