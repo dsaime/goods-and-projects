@@ -1,0 +1,52 @@
+#volumes:
+#  gap.pgsql.data:
+
+services:
+# https://redis.io/docs/latest/operate/oss_and_stack/install/install-stack/docker/
+  redis:
+    container_name: gap.redis
+    image: redis:8
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+# https://github.com/docker-library/docs/blob/master/postgres/README.md
+  pgsql:
+    container_name: gap.pgsql
+    image: postgres:17
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${PGSQL_USER}
+      POSTGRES_PASSWORD: ${PGSQL_PASSWORD}
+      POSTGRES_DB: gapdb
+    ports:
+      - "5432:5432"
+#    volumes:
+#      - gap.pgsql.data:/var/lib/postgresql/data
+
+# https://docs.nats.io/running-a-nats-service/nats_docker
+  nats:
+    container_name: gap.nats
+    image: nats:2.9
+    restart: unless-stopped
+    ports:
+      - "4222:4222"
+      - "8222:8222" # http://127.0.0.1:8222/
+    command:
+      - "-m"
+      - "8222"
+      - "-p"
+      - "4222"
+
+# https://hub.docker.com/r/clickhouse/clickhouse-server/s
+  clickhouse:
+    container_name: gap.clickhouse
+    image: clickhouse/clickhouse-server:25.1
+    restart: unless-stopped
+    ports:
+      - "8123:8123"
+    environment:
+      CLICKHOUSE_USER: clickhouse
+      CLICKHOUSE_PASSWORD: clickhouse
