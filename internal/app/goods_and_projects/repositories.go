@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log/slog"
 
+	pgsqlRepository "github.com/dsaime/goods-and-projects/internal/adapter/pgsql_repository"
 	"github.com/dsaime/goods-and-projects/internal/domain"
 	goodsCache "github.com/dsaime/goods-and-projects/internal/port/goods_cache"
-	"github.com/dsaime/goods-and-projects/internal/repository/pgsql"
 )
 
 type repositories struct {
@@ -18,7 +18,7 @@ type pgsqlDeps interface {
 }
 
 func initPgsqlRepositories(config Config, deps pgsqlDeps) (*repositories, func(), error) {
-	factory, err := pgsql.InitFactory(config.Pgsql)
+	factory, err := pgsqlRepository.InitFactory(config.Pgsql)
 	if err != nil {
 		return nil, nil, fmt.Errorf("pgsql.InitFactory: %w", err)
 	}

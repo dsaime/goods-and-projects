@@ -1,4 +1,4 @@
-package pgsql
+package pgsqlRepository
 
 import (
 	"fmt"
@@ -14,6 +14,10 @@ import (
 
 type Factory struct {
 	db *sqlx.DB
+}
+
+type Config struct {
+	DSN string
 }
 
 func InitFactory(cfg Config) (*Factory, error) {

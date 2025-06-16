@@ -1,4 +1,4 @@
-package pgsql
+package pgsqlRepository
 
 import (
 	"time"
@@ -27,6 +27,7 @@ func toDomain(good dbGood) domain.Good {
 		CreatedAt:   good.CreatedAt,
 	}
 }
+
 func toDomains(goods []dbGood) []domain.Good {
 	goodsDomain := make([]domain.Good, len(goods))
 	for i, good := range goods {
@@ -35,14 +36,14 @@ func toDomains(goods []dbGood) []domain.Good {
 	return goodsDomain
 }
 
-func toDB(good domain.Good) dbGood {
-	return dbGood{
-		ID:          good.ID,
-		ProjectID:   good.ProjectID,
-		Name:        good.Name,
-		Description: good.Description,
-		Priority:    good.Priority,
-		Removed:     good.Removed,
-		CreatedAt:   good.CreatedAt,
-	}
-}
+//func toDB(good domain.Good) dbGood {
+//	return dbGood{
+//		ID:          good.ID,
+//		ProjectID:   good.ProjectID,
+//		Name:        good.Name,
+//		Description: good.Description,
+//		Priority:    good.Priority,
+//		Removed:     good.Removed,
+//		CreatedAt:   good.CreatedAt,
+//	}
+//}
