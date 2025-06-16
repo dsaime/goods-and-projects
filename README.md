@@ -20,7 +20,7 @@ docker network create gap.network
 ```shell
 make compose-up
 ```
-В результате будут запущены сервисы:
+В результате будут запущены контейнеры:
 - **gap.server** — это то самое http-crud-api для товаров. По дефолту будет доступно на https://localhost:8080/. Точка входа находится в **cmd/goods-and-projects** 
 - **gap.event-listener** — сервис подписывается на канал *(subject в nats)*, в который должны приходить новые версии состояний товаров. Точка входа находится в **cmd/goods-event-listener**
 - **gap.redis** — используется server'ом как «Cache Aside (Lazy Loading)» внутри реализации «репозитория» товаров.
