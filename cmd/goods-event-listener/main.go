@@ -21,6 +21,7 @@ func main() {
 	waitInterrupt(cancel)
 }
 
+// appRun запускает приложение и обрабатывает результат
 func appRun(ctx context.Context) {
 	err := initCliCommand().Run(ctx, os.Args)
 	if errors.Is(err, context.Canceled) {
@@ -34,6 +35,7 @@ func appRun(ctx context.Context) {
 	os.Exit(0)
 }
 
+// waitInterrupt отменяет контекст, когда в приложение поступает сигнал syscall.SIGINT или syscall.SIGTERM
 func waitInterrupt(cancel context.CancelFunc) {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)
@@ -43,6 +45,7 @@ func waitInterrupt(cancel context.CancelFunc) {
 	time.Sleep(3 * time.Second)
 }
 
+// initCliCommand создает команду, для разбора аргументов командной строки и запуска приложения
 func initCliCommand() *cli.Command {
 	var cfg app.Config
 	return &cli.Command{
