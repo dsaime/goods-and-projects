@@ -22,4 +22,6 @@ sequenceDiagram
     pgsql_tx -->> server: ok
     P1 -->> P2: new_msg
     P2 ->> P3: add_event
+    P3 -->> P2: ok
+
 ```
