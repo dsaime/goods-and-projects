@@ -27,7 +27,7 @@ func Run(ctx context.Context, config Config) error {
 	ss := initServices(repos, adapterss)
 
 	// Инициализация и Запуск http контроллера
-	server := initHttpServer(ss)
+	server := initHttpServer(config, ss)
 	g.Go(func() error {
 		return runHttpServer(ctx, server)
 	})

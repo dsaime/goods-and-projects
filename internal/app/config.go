@@ -6,8 +6,9 @@ import (
 )
 
 type Config struct {
-	Pgsql pgsql.Config
-	Redis redisGoodsCache.Config
+	Pgsql    pgsql.Config
+	Redis    redisGoodsCache.Config
+	HttpAddr string
 }
 
 //

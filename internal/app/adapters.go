@@ -2,6 +2,7 @@ package app
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 
 	redisGoodsCache "github.com/dsaime/goods-and-projects/internal/adapter/redis_goods_cache"
@@ -20,7 +21,7 @@ func (a *adapters) GoodsCache() pgsql.GoodsCache {
 func initAdapters(config Config) (*adapters, func(), error) {
 	goodsCache, err := redisGoodsCache.Init(config.Redis)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("redisGoodsCache.Init: %w", err)
 	}
 
 	closer := func() {

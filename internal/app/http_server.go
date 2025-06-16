@@ -13,14 +13,14 @@ import (
 	"github.com/dsaime/goods-and-projects/internal/controller/http2/router"
 )
 
-func initHttpServer(ss *services) *http.Server {
+func initHttpServer(cfg Config, ss *services) *http.Server {
 	r := &router.Router{
 		Services: ss,
 	}
 	registerHandlers(r)
 
 	return &http.Server{
-		Addr:    ":8080",
+		Addr:    cfg.HttpAddr,
 		Handler: r,
 	}
 }

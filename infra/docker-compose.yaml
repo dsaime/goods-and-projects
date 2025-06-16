@@ -13,14 +13,18 @@ services:
       dockerfile: Containerfile
     networks:
       gap.network:
+    ports:
+      - "8080:8080"
     depends_on:
       - redis
       - pgsql
     command:
+      - "--http-addr"
+      - ":8080"
       - "--redis-cache"
-      - "redis://localhost:6379"
+      - "redis://gap.redis:6379"
       - "--pgsql"
-      - "postgresql://postgres:postgres@localhost:5432/gapdb?sslmode=disable"
+      - "postgresql://postgres:postgres@gap.pgsql:5432/gapdb?sslmode=disable"
 
 # https://redis.io/docs/latest/operate/oss_and_stack/install/install-stack/docker/
   redis:
@@ -31,8 +35,8 @@ services:
       - "6379:6379"
     networks:
       gap.network:
-        - aliases:
-            - redis.server
+        aliases:
+          - gap.redis
 
 # https://github.com/docker-library/docs/blob/master/postgres/README.md
   pgsql:
@@ -47,8 +51,8 @@ services:
       - "5432:5432"
     networks:
       gap.network:
-        - aliases:
-            - pgsql.server
+        aliases:
+          -  gap.pgsql
 #    volumes:
 #      - gap.pgsql.data:/var/lib/postgresql/data
 

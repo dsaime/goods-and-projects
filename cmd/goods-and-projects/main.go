@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	slog.Info("main: Starting")
+	slog.Info("main: starting")
 	ctx, cancel := context.WithCancel(context.Background())
 	go appRun(ctx)
 	waitInterrupt(cancel)
@@ -23,11 +23,14 @@ func main() {
 
 func appRun(ctx context.Context) {
 	err := initCliCommand().Run(ctx, os.Args)
-	if err != nil && !errors.Is(err, context.Canceled) {
+	if errors.Is(err, context.Canceled) {
+		slog.Info("main: appRun: exit by context canceled")
+		os.Exit(0)
+	} else if err != nil {
 		slog.Error("main: appRun: " + err.Error())
 		os.Exit(1)
 	}
-	slog.Info("main: appRun: ")
+	slog.Info("main: appRun: finished")
 	os.Exit(0)
 }
 
@@ -58,6 +61,12 @@ func initCliCommand() *cli.Command {
 				Name:        "redis-cache",
 				Destination: &cfg.Redis.RedisURL,
 				Usage:       "Redis connection string in format 'redis://[[username][:password]@]host[:port][/db-number]'",
+				Required:    true,
+			},
+			&cli.StringFlag{
+				Name:        "http-addr",
+				Destination: &cfg.HttpAddr,
+				Usage:       "HTTP server address",
 				Required:    true,
 			},
 			&cli.DurationFlag{
