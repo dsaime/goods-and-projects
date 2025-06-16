@@ -1,4 +1,4 @@
-.PHONY: test vet lint check run migrate
+.PHONY: test vet lint check run migrate compose-up
 
 # Get number of CPU cores minus 1 for parallel execution
 CORES := $(shell echo $$(( $$(nproc) - 1 )))
@@ -16,11 +16,8 @@ lint:
 
 check: vet lint
 
-run:
-	go run ./cmd/app/main.go
-
-migrate-pgsl:
-	migrate -database ${PGSQL_DSN} -path ./migrations/pgsql up
-
 migrate-clickhouse:
 	migrate -database ${CLICKHOUSE_DSN} -path ./migrations/clickhouse up
+
+compose-up:
+	docker compose -f infra/docker-compose.yaml up

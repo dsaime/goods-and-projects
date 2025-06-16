@@ -10,7 +10,7 @@ services:
     container_name: gap.server
     build:
       context: ../
-      dockerfile: Containerfile
+      dockerfile: ../Dockerrfile
     networks:
       gap.network:
     ports:
