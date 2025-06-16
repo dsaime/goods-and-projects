@@ -19,6 +19,10 @@ type Storage struct {
 	db *sqlx.DB
 }
 
+func (s *Storage) Close() error {
+	return s.db.Close()
+}
+
 func Init(cfg Config) (*Storage, error) {
 	options, err := clickhouse.ParseDSN(cfg.DSN)
 	if err != nil {
