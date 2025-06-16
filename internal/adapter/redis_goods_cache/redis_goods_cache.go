@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -46,6 +47,8 @@ func Init(cfg Config) (*GoodsCache, error) {
 	if err = client.Ping(context.TODO()).Err(); err != nil {
 		return nil, err
 	}
+
+	slog.Info("Successfully connected to Redis")
 
 	return &GoodsCache{
 		expiration: cfg.Expiration,

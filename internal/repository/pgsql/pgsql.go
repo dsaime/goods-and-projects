@@ -1,6 +1,8 @@
 package pgsql
 
 import (
+	"log/slog"
+
 	"github.com/jmoiron/sqlx"
 
 	"github.com/dsaime/goods-and-projects/internal/domain"
@@ -21,6 +23,8 @@ func InitFactory(cfg Config) (*Factory, error) {
 	if err = conn.Ping(); err != nil {
 		return nil, err
 	}
+
+	slog.Info("Successfully connected to PostgreSQL")
 
 	return &Factory{
 		db: conn,

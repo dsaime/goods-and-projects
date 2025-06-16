@@ -10,14 +10,16 @@ services:
     container_name: gap.server
     build:
       context: ../
-      dockerfile: ../Dockerrfile
+      dockerfile: ./Dockerfile
     networks:
       gap.network:
     ports:
       - "8080:8080"
     depends_on:
-      - redis
-      - pgsql
+      redis:
+        condition: service_healthy
+      pgsql:
+        condition: service_healthy
     command:
       - "--http-addr"
       - ":8080"
@@ -33,6 +35,11 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       gap.network:
         aliases:
@@ -49,6 +56,11 @@ services:
       POSTGRES_DB: gapdb
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $$POSTGRES_DB -U $$POSTGRES_USER"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     volumes:
       - ./pgsql/init:/docker-entrypoint-initdb.d
     networks:
