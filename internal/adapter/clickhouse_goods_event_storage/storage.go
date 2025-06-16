@@ -50,13 +50,13 @@ func (s *Storage) Save(event goodsEvent.Event) error {
 }
 
 type dbEvent struct {
-	ID          int       `json:"Id"`
-	ProjectID   int       `json:"ProjectId"`
-	Name        string    `json:"Name"`
-	Description string    `json:"Description"`
-	Priority    int       `json:"Priority"`
-	Removed     bool      `json:"Removed"`
-	EventTime   time.Time `json:"EventTime"`
+	ID          int       `db:"Id"`
+	ProjectID   int       `db:"ProjectId"`
+	Name        string    `db:"Name"`
+	Description string    `db:"Description"`
+	Priority    int       `db:"Priority"`
+	Removed     bool      `db:"Removed"`
+	EventTime   time.Time `db:"EventTime"`
 }
 
 func toDB(event goodsEvent.Event) dbEvent {

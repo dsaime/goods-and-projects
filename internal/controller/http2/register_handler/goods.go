@@ -90,7 +90,7 @@ func GoodsReprioritiize(router http2.Router) {
 		NewPriority int `json:"newPriority"`
 	}
 	router.HandleFunc(
-		"PATH /goods/reprioritiize",
+		"PATCH /goods/reprioritiize",
 		middleware.EmptyChain,
 		func(context http2.Context) (any, error) {
 			var rb requestBody

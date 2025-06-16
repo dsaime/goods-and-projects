@@ -40,17 +40,20 @@ func (r *goodsRepository) Find(filter domain.GoodFilter) (domain.Good, error) {
 	err := r.db.Get(&good, `
 		SELECT * FROM goods
 		WHERE id = $1 
-		  AND project_id = $2
-	`, filter.ID, filter.ProjectID)
+		  AND project_id = $2 
+		  AND ($3::BOOLEAN OR NOT removed)
+	`, filter.ID, filter.ProjectID, filter.AllowRemoved)
 	if errors.Is(err, sql.ErrNoRows) {
 		return domain.Good{}, domain.ErrGoodNotFound
 	} else if err != nil {
 		return domain.Good{}, err
 	}
 
-	r.cache.Save(toDomain(good))
+	domainGood := toDomain(good)
 
-	return toDomain(good), nil
+	r.cache.Save(domainGood)
+
+	return domainGood, nil
 }
 
 func (r *goodsRepository) Update(goodForUpdate domain.GoodForUpdate) (domain.Good, error) {

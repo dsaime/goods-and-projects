@@ -2,6 +2,7 @@ package natsGoodsEvent
 
 import (
 	"encoding/json"
+	"fmt"
 	"log/slog"
 
 	"github.com/nats-io/nats.go"
@@ -19,15 +20,22 @@ func (p *Logger) Close() error {
 }
 
 func (p *Logger) Log(event goodsEvent.Event) {
+	slog.Info("natsGoodsEvent: Logger.Log: new event for publishing",
+		slog.String("event", fmt.Sprintf("%+v", event)))
 	b, err := json.Marshal(event)
 	if err != nil {
-		slog.Error("natsGoodsEvent: Logger: json.Marshal: " + err.Error())
+		slog.Error("natsGoodsEvent: Logger.Log: json.Marshal: "+err.Error(),
+			slog.String("event", fmt.Sprintf("%+v", event)))
 		return
 	}
 
 	if err = p.conn.Publish(goodsEventSubject, b); err != nil {
-		slog.Error("natsGoodsEvent: Logger: nats.Publish: " + err.Error())
+		slog.Error("natsGoodsEvent: Logger.Publish: nats.Publish: "+err.Error(),
+			slog.String("event", fmt.Sprintf("%+v", event)))
+		return
 	}
+	slog.Info("natsGoodsEvent: Logger.Publish: nats.Publish: published",
+		slog.String("event", fmt.Sprintf("%+v", event)))
 }
 
 type LoggerConfig struct {

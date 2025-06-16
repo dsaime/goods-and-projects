@@ -1,0 +1,49 @@
+### Variables
+@baseUrl = http://localhost:8080
+@id = 63781142
+@projectId = 1
+
+### Check server availability
+GET {{baseUrl}}/ping
+
+### Список товаров
+GET {{baseUrl}}/goods/list?limit=100&offset=0
+Content-Type: application/json
+Accept: application/json
+
+{}
+
+### Обновить товар
+PATCH {{baseUrl}}/goods/update?id={{id}}&projectId={{projectId}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "updated name3464",
+  "description": "2fdgdsf"
+}
+
+### Создать товар
+POST {{baseUrl}}/goods/create?projectId={{projectId}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "new name"
+}
+
+### Изменить приоритет
+PATCH {{baseUrl}}/goods/reprioritiize?id={{id}}&projectId={{projectId}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "newPriority": 2
+}
+
+### Удалить товар
+DELETE {{baseUrl}}/goods/remove?id={{id}}&projectId={{projectId}}
+Content-Type: application/json
+Accept: application/json
+
+{}

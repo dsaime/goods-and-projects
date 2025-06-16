@@ -29,8 +29,9 @@ type GoodsRepository interface {
 }
 
 type GoodFilter struct {
-	ID        int
-	ProjectID int
+	ID           int
+	ProjectID    int
+	AllowRemoved bool
 }
 
 type GoodForUpdate struct {

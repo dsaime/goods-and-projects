@@ -117,6 +117,9 @@ func (g *Goods) CreateGood(in CreateGoodIn) (CreateGoodOut, error) {
 		return CreateGoodOut{}, err
 	}
 
+	event := newEventFromGood(createdGood)
+	g.GoodsEventLogger.Log(event)
+
 	return CreateGoodOut{
 		CreatedGood: createdGood,
 	}, nil
@@ -126,8 +129,9 @@ func getNewGoodID(repo domain.GoodsRepository, projectID int) int {
 	for range 10 {
 		randomID := int(rand.Int31())
 		_, err := repo.Find(domain.GoodFilter{
-			ID:        randomID,
-			ProjectID: projectID,
+			ID:           randomID,
+			ProjectID:    projectID,
+			AllowRemoved: true,
 		})
 		if errors.Is(err, domain.ErrGoodNotFound) {
 			return randomID
@@ -304,7 +308,7 @@ func (g *Goods) ReprioritiizeGood(in ReprioritiizeGoodIn) (ReprioritiizeGoodOut,
 		return ReprioritiizeGoodOut{}, err
 	}
 
-	var priorities []ReprioritiizeGoodOutPriority
+	var updatedGoods []domain.Good
 	err := g.Repo.InTransaction(func(txRepo domain.GoodsRepository) error {
 		goodForReprioritiize, err := txRepo.Find(domain.GoodFilter{
 			ID:        in.ID,
@@ -331,13 +335,13 @@ func (g *Goods) ReprioritiizeGood(in ReprioritiizeGoodIn) (ReprioritiizeGoodOut,
 			if err != nil {
 				return err
 			}
-			addReprioritiizeElem(&priorities, updatedGood)
+			updatedGoods = append(updatedGoods, updatedGood)
 		}
 		updatedGood, err := updatePriority(txRepo, goodForReprioritiize, in.NewPriority)
 		if err != nil {
 			return err
 		}
-		addReprioritiizeElem(&priorities, updatedGood)
+		updatedGoods = append(updatedGoods, updatedGood)
 
 		return err
 	})
@@ -345,8 +349,13 @@ func (g *Goods) ReprioritiizeGood(in ReprioritiizeGoodIn) (ReprioritiizeGoodOut,
 		return ReprioritiizeGoodOut{}, err
 	}
 
+	for _, updatedGood := range updatedGoods {
+		event := newEventFromGood(updatedGood)
+		g.GoodsEventLogger.Log(event)
+	}
+
 	return ReprioritiizeGoodOut{
-		Priorities: priorities,
+		Priorities: prioritiesFrom(updatedGoods),
 	}, err
 }
 
@@ -363,11 +372,15 @@ func updatePriority(txRepo domain.GoodsRepository, good domain.Good, newPriority
 	return txRepo.Update(forUpdate)
 }
 
-func addReprioritiizeElem(s *[]ReprioritiizeGoodOutPriority, good domain.Good) {
-	*s = append(*s, ReprioritiizeGoodOutPriority{
-		ID:       good.ID,
-		Priority: good.Priority,
-	})
+func prioritiesFrom(goods []domain.Good) []ReprioritiizeGoodOutPriority {
+	var outPriorities []ReprioritiizeGoodOutPriority
+	for _, good := range goods {
+		outPriorities = append(outPriorities, ReprioritiizeGoodOutPriority{
+			ID:       good.ID,
+			Priority: good.Priority,
+		})
+	}
+	return outPriorities
 }
 
 func newEventFromGood(good domain.Good) goodsEvent.Event {
