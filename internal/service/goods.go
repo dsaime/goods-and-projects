@@ -2,12 +2,15 @@ package service
 
 import (
 	"errors"
+	"time"
 
 	"github.com/dsaime/goods-and-projects/internal/domain"
+	goodsEvent "github.com/dsaime/goods-and-projects/internal/domain/goods_event"
 )
 
 type Goods struct {
-	Repo domain.GoodsRepository
+	Repo             domain.GoodsRepository
+	GoodsEventLogger goodsEvent.Logger
 }
 
 type GoodsIn struct {
@@ -186,6 +189,9 @@ func (g *Goods) UpdateGood(in UpdateGoodIn) (UpdateGoodOut, error) {
 		return UpdateGoodOut{}, err
 	}
 
+	event := newEventFromGood(updatedGood)
+	g.GoodsEventLogger.Log(event)
+
 	return UpdateGoodOut{
 		UpdatedGood: updatedGood,
 	}, err
@@ -221,7 +227,7 @@ func (g *Goods) DeleteGood(in DeleteGoodIn) (DeleteGoodOut, error) {
 	if err := in.Validate(); err != nil {
 		return DeleteGoodOut{}, err
 	}
-	var deletedGood DeleteGoodOutDeletedGood
+	var deletedGood domain.Good
 	err := g.Repo.InTransaction(func(txRepo domain.GoodsRepository) error {
 		oldGood, err := txRepo.Find(domain.GoodFilter{
 			ID:        in.ID,
@@ -243,20 +249,22 @@ func (g *Goods) DeleteGood(in DeleteGoodIn) (DeleteGoodOut, error) {
 			Priority:    oldGood.Priority,
 			Removed:     true,
 		}
-		updatedGood, err := txRepo.Update(forUpdate)
-		deletedGood = DeleteGoodOutDeletedGood{
-			ID:        updatedGood.ID,
-			ProjectID: updatedGood.ProjectID,
-			Removed:   true,
-		}
+		deletedGood, err = txRepo.Update(forUpdate)
 		return err
 	})
 	if err != nil {
 		return DeleteGoodOut{}, err
 	}
 
+	event := newEventFromGood(deletedGood)
+	g.GoodsEventLogger.Log(event)
+
 	return DeleteGoodOut{
-		DeletedGood: deletedGood,
+		DeletedGood: DeleteGoodOutDeletedGood{
+			ID:        deletedGood.ID,
+			ProjectID: deletedGood.ProjectID,
+			Removed:   true,
+		},
 	}, err
 }
 
@@ -358,4 +366,16 @@ func addReprioritiizeElem(s *[]ReprioritiizeGoodOutPriority, good domain.Good) {
 		ID:       good.ID,
 		Priority: good.Priority,
 	})
+}
+
+func newEventFromGood(good domain.Good) goodsEvent.Event {
+	return goodsEvent.Event{
+		ID:          good.ID,
+		ProjectID:   good.ProjectID,
+		Name:        good.Name,
+		Description: good.Description,
+		Priority:    good.Priority,
+		Removed:     good.Removed,
+		EventTime:   time.Now(),
+	}
 }

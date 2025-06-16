@@ -10,8 +10,11 @@ func (s *services) Goods() *service.Goods {
 	return s.goods
 }
 
-func initServices(repos *repositories, adaps *adapters) *services {
+func initServices(repos *repositories, adapterss *adapters) *services {
 	return &services{
-		goods: &service.Goods{},
+		goods: &service.Goods{
+			Repo:             repos.goods,
+			GoodsEventLogger: adapterss.goodsEventLogger,
+		},
 	}
 }

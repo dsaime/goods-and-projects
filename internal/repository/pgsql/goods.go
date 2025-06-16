@@ -8,6 +8,7 @@ import (
 	"github.com/nullism/bqb"
 
 	"github.com/dsaime/goods-and-projects/internal/domain"
+	goodsCache "github.com/dsaime/goods-and-projects/internal/port/goods_cache"
 )
 
 type goodsRepository struct {
@@ -21,7 +22,7 @@ type goodsRepository struct {
 		Beginx() (*sqlx.Tx, error)
 	}
 	isTx  bool
-	cache GoodsCache
+	cache goodsCache.GoodsCache
 }
 
 func (r *goodsRepository) Find(filter domain.GoodFilter) (domain.Good, error) {

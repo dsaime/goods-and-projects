@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/dsaime/goods-and-projects/internal/domain"
+	goodsCache "github.com/dsaime/goods-and-projects/internal/port/goods_cache"
 	"github.com/dsaime/goods-and-projects/internal/repository/pgsql"
 )
 
@@ -13,7 +14,7 @@ type repositories struct {
 }
 
 type pgsqlDeps interface {
-	GoodsCache() pgsql.GoodsCache
+	GoodsCache() goodsCache.GoodsCache
 }
 
 func initPgsqlRepositories(config Config, deps pgsqlDeps) (*repositories, func(), error) {

@@ -1,11 +1,13 @@
 package pgsql
 
 import (
+	"fmt"
 	"log/slog"
 
 	"github.com/jmoiron/sqlx"
 
 	"github.com/dsaime/goods-and-projects/internal/domain"
+	goodsCache "github.com/dsaime/goods-and-projects/internal/port/goods_cache"
 
 	_ "github.com/lib/pq"
 )
@@ -17,11 +19,11 @@ type Factory struct {
 func InitFactory(cfg Config) (*Factory, error) {
 	conn, err := sqlx.Connect("postgres", cfg.DSN)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sqlx.Connect: %w", err)
 	}
 
 	if err = conn.Ping(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sqlx.Ping: %w", err)
 	}
 
 	slog.Info("Successfully connected to PostgreSQL")
@@ -35,7 +37,7 @@ func (f *Factory) Close() error {
 	return f.db.Close()
 }
 
-func (f *Factory) NewGoodsRepository(cache GoodsCache) domain.GoodsRepository {
+func (f *Factory) NewGoodsRepository(cache goodsCache.GoodsCache) domain.GoodsRepository {
 	return &goodsRepository{
 		db:         f.db,
 		txBeginner: f.db,

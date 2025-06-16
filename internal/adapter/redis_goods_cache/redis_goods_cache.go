@@ -11,6 +11,7 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"github.com/dsaime/goods-and-projects/internal/domain"
+	goodsCache "github.com/dsaime/goods-and-projects/internal/port/goods_cache"
 )
 
 type GoodsCache struct {
@@ -32,11 +33,6 @@ type Config struct {
 	Expiration time.Duration
 }
 
-type cacheKey = interface {
-	GetID() int
-	GetProjectID() int
-}
-
 func Init(cfg Config) (*GoodsCache, error) {
 	opts, err := redis.ParseURL(cfg.RedisURL)
 	if err != nil {
@@ -56,7 +52,7 @@ func Init(cfg Config) (*GoodsCache, error) {
 	}, nil
 }
 
-func (g *GoodsCache) Get(key cacheKey) (domain.Good, bool) {
+func (g *GoodsCache) Get(key goodsCache.Key) (domain.Good, bool) {
 	b, err := g.client.Get(context.TODO(), strKey(key)).Bytes()
 	if err != nil {
 		return domain.Good{}, false
@@ -84,7 +80,7 @@ func (g *GoodsCache) Save(goods ...domain.Good) {
 	wg.Wait()
 }
 
-func (g *GoodsCache) Delete(keys ...cacheKey) {
+func (g *GoodsCache) Delete(keys ...goodsCache.Key) {
 	kk := make([]string, len(keys))
 	for i := range keys {
 		kk[i] = strKey(keys[i])
@@ -93,6 +89,6 @@ func (g *GoodsCache) Delete(keys ...cacheKey) {
 	g.client.Del(context.TODO(), kk...)
 }
 
-func strKey(key cacheKey) string {
+func strKey(key goodsCache.Key) string {
 	return fmt.Sprintf("goods:%d_%d", key.GetID(), key.GetProjectID())
 }

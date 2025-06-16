@@ -11,7 +11,7 @@ import (
 
 	"github.com/urfave/cli/v3"
 
-	"github.com/dsaime/goods-and-projects/internal/app"
+	app "github.com/dsaime/goods-and-projects/internal/app/goods_and_projects"
 )
 
 func main() {
@@ -52,13 +52,13 @@ func initCliCommand() *cli.Command {
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:        "pgsql",
+				Name:        "pgsql-dsn",
 				Destination: &cfg.Pgsql.DSN,
 				Usage:       "PostgreSQL connection string in format 'postgres://user:password@host:port/dbname'",
 				Required:    true,
 			},
 			&cli.StringFlag{
-				Name:        "redis-cache",
+				Name:        "redis-url",
 				Destination: &cfg.Redis.RedisURL,
 				Usage:       "Redis connection string in format 'redis://[[username][:password]@]host[:port][/db-number]'",
 				Required:    true,
@@ -67,6 +67,12 @@ func initCliCommand() *cli.Command {
 				Name:        "http-addr",
 				Destination: &cfg.HttpAddr,
 				Usage:       "HTTP server address",
+				Required:    true,
+			},
+			&cli.StringFlag{
+				Name:        "nats-url",
+				Destination: &cfg.Nats.NatsURL,
+				Usage:       "NATS connection string in format 'nats://user:password@host:port'",
 				Required:    true,
 			},
 			&cli.DurationFlag{

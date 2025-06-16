@@ -1,0 +1,14 @@
+### Variables
+@baseUrl = http://localhost:8080
+
+### Check server availability
+GET {{baseUrl}}/ping
+
+### Создать товар
+POST {{baseUrl}}/goods/create?projectId=1
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Test good"
+}

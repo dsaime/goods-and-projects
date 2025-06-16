@@ -1,4 +1,4 @@
-package pgsql
+package goodsCache
 
 import (
 	"github.com/dsaime/goods-and-projects/internal/domain"
@@ -6,12 +6,12 @@ import (
 
 // GoodsCache взаимодействует с кэшем, читать сохранить
 type GoodsCache interface {
-	Get(cacheKey) (domain.Good, bool)
+	Get(Key) (domain.Good, bool)
 	Save(goods ...domain.Good)
-	Delete(...cacheKey)
+	Delete(...Key)
 }
 
-type cacheKey = interface {
+type Key interface {
 	GetID() int
 	GetProjectID() int
 }
