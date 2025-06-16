@@ -1,7 +1,12 @@
 # goods-and-projects
 Выполнение очередного тестового задания
 
-Запустить проект
+Создать докер-сеть
+```shell
+docker network create gap.network
+```
+
+И теперь можно запускать проект
 ```shell
 make compose-up
 ```
