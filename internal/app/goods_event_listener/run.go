@@ -10,7 +10,6 @@ import (
 	clickhouseGoodsEventStorage "github.com/dsaime/goods-and-projects/internal/adapter/clickhouse_goods_event_storage"
 	natsGoodsEvent "github.com/dsaime/goods-and-projects/internal/adapter/nats_goods_event"
 	goodsEvent "github.com/dsaime/goods-and-projects/internal/domain/goods_event"
-	goodsEventStorage "github.com/dsaime/goods-and-projects/internal/port/goods_event_storage"
 )
 
 func Run(ctx context.Context, config Config) error {
@@ -32,7 +31,7 @@ func Run(ctx context.Context, config Config) error {
 	return listener.Listen(ctx, eventHandler(storage))
 }
 
-func eventHandler(storage goodsEventStorage.GoodsEventStorage) func(event goodsEvent.Event) {
+func eventHandler(storage goodsEventStorage) func(event goodsEvent.Event) {
 	var mu sync.Mutex
 	const batchSize = 1000
 	const flushInterval = 2 * time.Second // ms
@@ -69,7 +68,7 @@ func eventHandler(storage goodsEventStorage.GoodsEventStorage) func(event goodsE
 	}
 }
 
-func saveBatch(storage goodsEventStorage.GoodsEventStorage, batch []goodsEvent.Event) {
+func saveBatch(storage goodsEventStorage, batch []goodsEvent.Event) {
 	if err := storage.Save(batch...); err != nil {
 		slog.Error("listener handler: storage.Save: " + err.Error())
 		return
