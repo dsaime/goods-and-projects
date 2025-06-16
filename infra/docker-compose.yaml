@@ -22,9 +22,9 @@ services:
       - "--http-addr"
       - ":8080"
       - "--redis-cache"
-      - "redis://gap.redis:6379"
+      - "redis://redis:6379"
       - "--pgsql"
-      - "postgresql://postgres:postgres@gap.pgsql:5432/gapdb?sslmode=disable"
+      - "postgresql://postgres:postgres@pgsql:5432/gapdb?sslmode=disable"
 
 # https://redis.io/docs/latest/operate/oss_and_stack/install/install-stack/docker/
   redis:
@@ -36,7 +36,7 @@ services:
     networks:
       gap.network:
         aliases:
-          - gap.redis
+          - redis
 
 # https://github.com/docker-library/docs/blob/master/postgres/README.md
   pgsql:
@@ -49,10 +49,12 @@ services:
       POSTGRES_DB: gapdb
     ports:
       - "5432:5432"
+    volumes:
+      - ../migrations/pgsql/init:/docker-entrypoint-initdb.d
     networks:
       gap.network:
         aliases:
-          -  gap.pgsql
+          - pgsql
 #    volumes:
 #      - gap.pgsql.data:/var/lib/postgresql/data
 
