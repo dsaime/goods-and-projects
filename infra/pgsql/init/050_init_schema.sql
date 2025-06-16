@@ -8,6 +8,7 @@ CREATE TABLE projects
 CREATE TABLE goods
 (
     id          INTEGER,                                    -- id записи
+--     version     INTEGER NOT NULL DEFAULT 0,                 -- версия записи
     project_id  INTEGER,                                    -- id компании
     name        TEXT    NOT NULL DEFAULT '',                -- название
     description TEXT    NOT NULL DEFAULT '',                -- описание
