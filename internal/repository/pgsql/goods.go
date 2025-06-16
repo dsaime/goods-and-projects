@@ -42,7 +42,7 @@ func (r *goodsRepository) Find(filter domain.GoodFilter) (domain.Good, error) {
 		WHERE id = $1 
 		  AND project_id = $2 
 		  AND ($3::BOOLEAN OR NOT removed)
-	`, filter.ID, filter.ProjectID, filter.AllowRemoved)
+	`, filter.ID, filter.ProjectID, filter.ShowRemoved)
 	if errors.Is(err, sql.ErrNoRows) {
 		return domain.Good{}, domain.ErrGoodNotFound
 	} else if err != nil {
@@ -101,27 +101,45 @@ func (r *goodsRepository) Create(goodForSave domain.GoodForCreate) (domain.Good,
 	return toDomain(good), nil
 }
 
-func (r *goodsRepository) List(filter domain.GoodsFilter) ([]domain.Good, error) {
+func (r *goodsRepository) List(filter domain.GoodsFilter) (domain.GoodsListResult, error) {
+	// Запросить количественные общие значения
+	queryMeta, argsMeta, err := buildQueryListMeta(filter)
+	if err != nil {
+		return domain.GoodsListResult{}, err
+	}
+	var meta struct {
+		Total   int `db:"total"`
+		Removed int `db:"removed"`
+	}
+	if err = r.db.Get(&meta, queryMeta, argsMeta...); err != nil {
+		return domain.GoodsListResult{}, err
+	}
+
+	// Запросить товары с учетом сдвига и лимита
 	query, args, err := buildQueryList(filter, r.isTx)
 	if err != nil {
-		return nil, err
+		return domain.GoodsListResult{}, err
 	}
-
 	var goods []dbGood
 	if err = r.db.Select(&goods, query, args...); err != nil {
-		return nil, err
+		return domain.GoodsListResult{}, err
 	}
 
+	// Сохранить в кэш
 	domainGoods := toDomains(goods)
 	r.cache.Save(domainGoods...)
 
-	return domainGoods, nil
+	return domain.GoodsListResult{
+		Total:   meta.Total,
+		Removed: meta.Removed,
+		Goods:   domainGoods,
+	}, nil
 }
 
-func buildQueryList(filter domain.GoodsFilter, forUpdate bool) (string, []any, error) {
+func buildQueryList(filter domain.GoodsFilter, forUpdate bool) (query string, args []any, err error) {
 	selFrom := bqb.New("SELECT * FROM goods")
 
-	where := bqb.Optional("WHERE")
+	where := bqb.New("WHERE NOT removed")
 	if filter.PriorityGreaterThan > 0 {
 		where = where.And("priority > ?", filter.PriorityGreaterThan)
 	}
@@ -136,6 +154,23 @@ func buildQueryList(filter domain.GoodsFilter, forUpdate bool) (string, []any, e
 	if forUpdate {
 		q = q.Space("FOR UPDATE")
 	}
+
+	return q.ToPgsql()
+}
+
+func buildQueryListMeta(filter domain.GoodsFilter) (query string, args []any, err error) {
+	selFrom := bqb.New(`
+		SELECT COUNT(1) AS total,
+		       COUNT(1) FILTER ( WHERE removed ) AS removed
+		FROM goods
+	`)
+
+	where := bqb.Optional("WHERE")
+	if filter.PriorityGreaterThan > 0 {
+		where = where.And("priority > ?", filter.PriorityGreaterThan)
+	}
+
+	q := bqb.New("? ?", selFrom, where)
 
 	return q.ToPgsql()
 }

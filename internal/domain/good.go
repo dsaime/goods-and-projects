@@ -21,17 +21,23 @@ func (g Good) GetProjectID() int {
 }
 
 type GoodsRepository interface {
-	List(filter GoodsFilter) ([]Good, error)
+	List(filter GoodsFilter) (GoodsListResult, error)
 	Find(filter GoodFilter) (Good, error)
 	Update(GoodForUpdate) (Good, error)
 	Create(GoodForCreate) (Good, error)
 	InTransaction(func(txRepo GoodsRepository) error) error
 }
 
+type GoodsListResult struct {
+	Total   int
+	Removed int
+	Goods   []Good
+}
+
 type GoodFilter struct {
-	ID           int
-	ProjectID    int
-	AllowRemoved bool
+	ID          int
+	ProjectID   int
+	ShowRemoved bool
 }
 
 type GoodForUpdate struct {
@@ -50,7 +56,6 @@ type GoodForCreate struct {
 }
 
 type GoodsFilter struct {
-	//WithRemoved         bool
 	PriorityGreaterThan int
 	Limit               int
 	Offset              int

@@ -1,13 +1,15 @@
 ### Variables
 @baseUrl = http://localhost:8080
-@id = 63781142
+@id = 2115100711
 @projectId = 1
+@limit=3
+@offset=0
 
 ### Check server availability
 GET {{baseUrl}}/ping
 
 ### Список товаров
-GET {{baseUrl}}/goods/list?limit=100&offset=0
+GET {{baseUrl}}/goods/list?limit={{limit}}&offset={{offset}}
 Content-Type: application/json
 Accept: application/json
 
@@ -38,7 +40,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "newPriority": 2
+  "newPriority": 3
 }
 
 ### Удалить товар

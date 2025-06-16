@@ -31,15 +31,11 @@ func (in GoodsIn) Validate() error {
 }
 
 type GoodsOut struct {
-	Meta  GoodsOutMeta
-	Goods []domain.Good
-}
-
-type GoodsOutMeta struct {
 	Total   int
 	Removed int
 	Limit   int
 	Offset  int
+	Goods   []domain.Good
 }
 
 func (g *Goods) Goods(in GoodsIn) (GoodsOut, error) {
@@ -47,7 +43,7 @@ func (g *Goods) Goods(in GoodsIn) (GoodsOut, error) {
 		return GoodsOut{}, err
 	}
 
-	goods, err := g.Repo.List(domain.GoodsFilter{
+	goodsList, err := g.Repo.List(domain.GoodsFilter{
 		Limit:  in.Limit,
 		Offset: in.Offset,
 	})
@@ -56,25 +52,12 @@ func (g *Goods) Goods(in GoodsIn) (GoodsOut, error) {
 	}
 
 	return GoodsOut{
-		Meta: GoodsOutMeta{
-			Total:   len(goods), // TODO
-			Removed: countByRemoved(goods),
-			Limit:   in.Limit,
-			Offset:  in.Offset,
-		},
-		Goods: goods,
+		Total:   goodsList.Total,
+		Removed: goodsList.Removed,
+		Limit:   in.Limit,
+		Offset:  in.Offset,
+		Goods:   goodsList.Goods,
 	}, err
-}
-
-func countByRemoved(goods []domain.Good) int {
-	var count int
-	for _, good := range goods {
-		if good.Removed {
-			count++
-		}
-	}
-
-	return count
 }
 
 type CreateGoodIn struct {
@@ -129,9 +112,9 @@ func getNewGoodID(repo domain.GoodsRepository, projectID int) int {
 	for range 10 {
 		randomID := int(rand.Int31())
 		_, err := repo.Find(domain.GoodFilter{
-			ID:           randomID,
-			ProjectID:    projectID,
-			AllowRemoved: true,
+			ID:          randomID,
+			ProjectID:   projectID,
+			ShowRemoved: true,
 		})
 		if errors.Is(err, domain.ErrGoodNotFound) {
 			return randomID
@@ -321,13 +304,13 @@ func (g *Goods) ReprioritiizeGood(in ReprioritiizeGoodIn) (ReprioritiizeGoodOut,
 			return nil
 		}
 
-		goods, err := txRepo.List(domain.GoodsFilter{
+		goodsList, err := txRepo.List(domain.GoodsFilter{
 			PriorityGreaterThan: in.NewPriority - 1,
 		})
 		if err != nil {
 			return err
 		}
-		for _, good := range goods {
+		for _, good := range goodsList.Goods {
 			if good.ID == in.ID && good.ProjectID == in.ProjectID {
 				continue
 			}
