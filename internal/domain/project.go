@@ -4,8 +4,9 @@ import (
 	"time"
 )
 
+// Project представляет собой сущность компании.
 type Project struct {
-	ID        int
-	Name      string
-	CreatedAt time.Time
+	ID        int       // Идентификатор компании
+	Name      string    // Название компании
+	CreatedAt time.Time // Дата и время создания компании
 }
