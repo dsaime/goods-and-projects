@@ -2,9 +2,10 @@ package clickhouseGoodsEventStorage
 
 import (
 	"fmt"
+	"log/slog"
 	"time"
 
-	_ "github.com/ClickHouse/clickhouse-go"
+	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/jmoiron/sqlx"
 
 	goodsEvent "github.com/dsaime/goods-and-projects/internal/domain/goods_event"
@@ -19,14 +20,18 @@ type Storage struct {
 }
 
 func Init(cfg Config) (*Storage, error) {
-	conn, err := sqlx.Connect("clickhouse", cfg.DSN)
+	options, err := clickhouse.ParseDSN(cfg.DSN)
 	if err != nil {
-		return nil, fmt.Errorf("sqlx.Connect: %w", err)
+		return nil, fmt.Errorf("clickhouse.ParseDSN: %w", err)
 	}
+
+	conn := sqlx.NewDb(clickhouse.OpenDB(options), "clickhouse")
 
 	if err = conn.Ping(); err != nil {
 		return nil, fmt.Errorf("sqlx.Ping: %w", err)
 	}
+
+	slog.Info("Successfully connected to ClickHouse")
 
 	return &Storage{
 		db: conn,

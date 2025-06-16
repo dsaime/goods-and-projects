@@ -48,7 +48,7 @@ services:
       - "--nats-url"
       - "nats://nats:4222"
       - "--clickhouse-dsn"
-      - "clickhouse://clickhouse:clickhouse@clickhouse:8123"
+      - "http://clickhouse:8123?username=clickhouse&password=clickhouse"
 
 # https://redis.io/docs/latest/operate/oss_and_stack/install/install-stack/docker/
   redis:
