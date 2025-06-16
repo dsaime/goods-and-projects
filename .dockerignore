@@ -1,4 +1,4 @@
-infra
+docker
 .gitignore
-Containerfile
+Dockerfile
 README.md
