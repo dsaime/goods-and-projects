@@ -9,16 +9,19 @@ import (
 	goodsEvent "github.com/dsaime/goods-and-projects/internal/domain/goods_event"
 )
 
+// Goods сервис, объединяющий случаи использования(юзкейсы) в контексте товаров
 type Goods struct {
 	Repo             domain.GoodsRepository
 	GoodsEventLogger goodsEvent.Logger
 }
 
+// GoodsIn входящие параметры
 type GoodsIn struct {
 	Limit  int
 	Offset int
 }
 
+// Validate валидирует значение отдельно каждого параметры
 func (in GoodsIn) Validate() error {
 	if in.Limit <= 0 {
 		return errors.New("limit must be positive and greater than 0")
@@ -30,6 +33,7 @@ func (in GoodsIn) Validate() error {
 	return nil
 }
 
+// GoodsOut результат запроса чатов
 type GoodsOut struct {
 	Total   int
 	Removed int
@@ -38,6 +42,7 @@ type GoodsOut struct {
 	Goods   []domain.Good
 }
 
+// Goods возвращает список товаров, с учетом сдвига и лимита
 func (g *Goods) Goods(in GoodsIn) (GoodsOut, error) {
 	if err := in.Validate(); err != nil {
 		return GoodsOut{}, err
@@ -60,11 +65,13 @@ func (g *Goods) Goods(in GoodsIn) (GoodsOut, error) {
 	}, err
 }
 
+// CreateGoodIn описывает входящие параметры
 type CreateGoodIn struct {
 	ProjectID int
 	Name      string
 }
 
+// Validate валидирует значение отдельно каждого параметры
 func (in CreateGoodIn) Validate() error {
 	if in.ProjectID <= 0 {
 		return errors.New("projectID is required")
@@ -76,10 +83,12 @@ func (in CreateGoodIn) Validate() error {
 	return nil
 }
 
+// CreateGoodOut результат запроса чатов
 type CreateGoodOut struct {
 	CreatedGood domain.Good
 }
 
+// CreateGood создает товар
 func (g *Goods) CreateGood(in CreateGoodIn) (CreateGoodOut, error) {
 	if err := in.Validate(); err != nil {
 		return CreateGoodOut{}, err
@@ -108,6 +117,9 @@ func (g *Goods) CreateGood(in CreateGoodIn) (CreateGoodOut, error) {
 	}, nil
 }
 
+// getNewGoodID отдает ID, с которым можно сохранять новый товар.
+// Может вернуть 0, если не найдет свободный ID.
+// Свой выбор основывает на рандоме.
 func getNewGoodID(repo domain.GoodsRepository, projectID int) int {
 	for range 10 {
 		randomID := int(rand.Int31())
@@ -124,6 +136,7 @@ func getNewGoodID(repo domain.GoodsRepository, projectID int) int {
 	return 0
 }
 
+// UpdateGoodIn описывает входящие параметры
 type UpdateGoodIn struct {
 	ID          int
 	ProjectID   int
@@ -131,6 +144,7 @@ type UpdateGoodIn struct {
 	Description string
 }
 
+// Validate валидирует значение отдельно каждого параметры
 func (in UpdateGoodIn) Validate() error {
 	if in.ID <= 0 {
 		return errors.New("GetID is required")
@@ -145,10 +159,12 @@ func (in UpdateGoodIn) Validate() error {
 	return nil
 }
 
+// UpdateGoodOut результат запроса чатов
 type UpdateGoodOut struct {
 	UpdatedGood domain.Good
 }
 
+// UpdateGood обновляет товар
 func (g *Goods) UpdateGood(in UpdateGoodIn) (UpdateGoodOut, error) {
 	if err := in.Validate(); err != nil {
 		return UpdateGoodOut{}, err
@@ -186,11 +202,13 @@ func (g *Goods) UpdateGood(in UpdateGoodIn) (UpdateGoodOut, error) {
 	}, err
 }
 
+// DeleteGoodIn описывает входящие параметры
 type DeleteGoodIn struct {
 	ID        int
 	ProjectID int
 }
 
+// Validate валидирует значение отдельно каждого параметры
 func (in DeleteGoodIn) Validate() error {
 	if in.ID <= 0 {
 		return errors.New("GetID is required")
@@ -202,6 +220,7 @@ func (in DeleteGoodIn) Validate() error {
 	return nil
 }
 
+// DeleteGoodOut результат запроса чатов
 type DeleteGoodOut struct {
 	DeletedGood DeleteGoodOutDeletedGood
 }
@@ -212,6 +231,7 @@ type DeleteGoodOutDeletedGood struct {
 	Removed   bool
 }
 
+// DeleteGood удаляет товар
 func (g *Goods) DeleteGood(in DeleteGoodIn) (DeleteGoodOut, error) {
 	if err := in.Validate(); err != nil {
 		return DeleteGoodOut{}, err
@@ -257,12 +277,14 @@ func (g *Goods) DeleteGood(in DeleteGoodIn) (DeleteGoodOut, error) {
 	}, err
 }
 
+// ReprioritiizeGoodIn описывает входящие параметры
 type ReprioritiizeGoodIn struct {
 	ID          int
 	ProjectID   int
 	NewPriority int
 }
 
+// Validate валидирует значение отдельно каждого параметры
 func (in ReprioritiizeGoodIn) Validate() error {
 	if in.ID <= 0 {
 		return errors.New("GetID is required")
@@ -277,6 +299,7 @@ func (in ReprioritiizeGoodIn) Validate() error {
 	return nil
 }
 
+// ReprioritiizeGoodOut результат запроса чатов
 type ReprioritiizeGoodOut struct {
 	Priorities []ReprioritiizeGoodOutPriority
 }
@@ -286,6 +309,7 @@ type ReprioritiizeGoodOutPriority struct {
 	Priority int
 }
 
+// ReprioritiizeGood изменяет позицию у товара и двигает приоритет товаров, приоритет которых равен или больше переданному
 func (g *Goods) ReprioritiizeGood(in ReprioritiizeGoodIn) (ReprioritiizeGoodOut, error) {
 	if err := in.Validate(); err != nil {
 		return ReprioritiizeGoodOut{}, err
