@@ -1,10 +1,6 @@
 package goodsEvent
 
-//const (
-//	GoodsEventCreated = "goods_created"
-//	GoodsEventUpdated = "goods_updated"
-//)
-
+// Logger представляет собой интерфейс отправки логов об обновлении состояния товаров
 type Logger interface {
 	Log(event Event)
 }
