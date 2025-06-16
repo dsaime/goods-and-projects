@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"sync"
+	"time"
 
 	clickhouseGoodsEventStorage "github.com/dsaime/goods-and-projects/internal/adapter/clickhouse_goods_event_storage"
 	natsGoodsEvent "github.com/dsaime/goods-and-projects/internal/adapter/nats_goods_event"
@@ -31,12 +33,46 @@ func Run(ctx context.Context, config Config) error {
 }
 
 func eventHandler(storage goodsEventStorage.GoodsEventStorage) func(event goodsEvent.Event) {
-	return func(event goodsEvent.Event) {
-		slog.Info("новое событие", "event", fmt.Sprintf("%+v", event))
-		if err := storage.Save(event); err != nil {
-			slog.Error("listener handler: storage.Save: " + err.Error())
-			return
+	var mu sync.Mutex
+	const batchSize = 1000
+	const flushInterval = 2 * time.Second // ms
+	batch := make([]goodsEvent.Event, 0, batchSize)
+	flushTimer := time.NewTimer(flushInterval)
+	go func() {
+		for {
+			<-flushTimer.C
+			mu.Lock()
+			if len(batch) > 0 {
+				saveBatch(storage, batch)
+				batch = batch[:0]
+			}
+			flushTimer.Reset(flushInterval)
+			mu.Unlock()
 		}
-		slog.Info("событие сохранено", "event", fmt.Sprintf("%+v", event))
+	}()
+
+	return func(event goodsEvent.Event) {
+		mu.Lock()
+		defer mu.Unlock()
+		slog.Info("новое событие",
+			slog.String("event", fmt.Sprintf("%+v", event)))
+
+		batch = append(batch, event)
+		if len(batch) >= batchSize {
+			saveBatch(storage, batch)
+			batch = batch[:0]
+			flushTimer.Reset(flushInterval)
+		} else {
+			slog.Info("событие будет сохранено в пачке",
+				slog.String("event", fmt.Sprintf("%+v", event)))
+		}
 	}
+}
+
+func saveBatch(storage goodsEventStorage.GoodsEventStorage, batch []goodsEvent.Event) {
+	if err := storage.Save(batch...); err != nil {
+		slog.Error("listener handler: storage.Save: " + err.Error())
+		return
+	}
+	slog.Info(fmt.Sprintf("пачка из %d элементов сохранена", len(batch)))
 }

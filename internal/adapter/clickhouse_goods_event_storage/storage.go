@@ -42,11 +42,11 @@ func Init(cfg Config) (*Storage, error) {
 	}, nil
 }
 
-func (s *Storage) Save(event goodsEvent.Event) error {
+func (s *Storage) Save(events ...goodsEvent.Event) error {
 	if _, err := s.db.NamedExec(`
 		INSERT INTO goods (Id, ProjectId, Name, Description, Priority, Removed, EventTime)
 		VALUES (:Id, :ProjectId, :Name, :Description, :Priority, :Removed, :EventTime)
-	`, toDB(event)); err != nil {
+	`, toDBs(events)); err != nil {
 		return err
 	}
 
@@ -73,4 +73,12 @@ func toDB(event goodsEvent.Event) dbEvent {
 		Removed:     event.Removed,
 		EventTime:   event.EventTime,
 	}
+}
+
+func toDBs(event []goodsEvent.Event) []dbEvent {
+	dbEvents := make([]dbEvent, len(event))
+	for i, e := range event {
+		dbEvents[i] = toDB(e)
+	}
+	return dbEvents
 }

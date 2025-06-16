@@ -1,6 +1,6 @@
 ### Variables
 @baseUrl = http://localhost:8080
-@id = 2115100711
+@id = 1667656536
 @projectId = 1
 @limit=3
 @offset=0
@@ -21,8 +21,8 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "name": "updated name3464",
-  "description": "2fdgdsf"
+  "name": "{{$random.commerce.productName}}",
+  "description": "{{$random.alphabetic(66)}}"
 }
 
 ### Создать товар
@@ -31,7 +31,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "name": "new name"
+  "name": "{{$random.commerce.productName}}",
 }
 
 ### Изменить приоритет
@@ -40,7 +40,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "newPriority": 3
+  "newPriority": 1
 }
 
 ### Удалить товар
