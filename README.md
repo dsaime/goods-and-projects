@@ -1,7 +1,17 @@
 # goods-and-projects
-Выполнение очередного тестового задания
 
-Создать докер-сеть
+Проект называется «Товары и компании».
+
+В названии присутствует слово «Товары», потому
+что только для этого типа сущностей описан http-crud-api _(см. пункт [docker](#docker-запуск-проекта))_.
+В названии присутствует слово «Компании» потому, что это второй и последний бизнесовый тип сущности, который есть в проекте.
+«»
+
+### Docker. Запуск проекта
+
+_(в системе требуются установленные приложения **docker** и **docker compose**)_
+
+Обязательно создать докер-сеть. Требуется, потому что все сервисы находятся в докер-сети называемой **gap.network**
 ```shell
 docker network create gap.network
 ```
@@ -10,6 +20,16 @@ docker network create gap.network
 ```shell
 make compose-up
 ```
+В результате будут запущены сервисы:
+- **gap.server** — это то самое http-crud-api для товаров. По дефолту будет доступно на https://localhost:8080/. Точка входа находится в **cmd/goods-and-projects** 
+- **gap.event-listener** — сервис подписывается на канал *(subject в nats)*, в который должны приходить новые версии состояний товаров. Точка входа находится в **cmd/goods-event-listener**
+- **gap.redis** — используется server'ом как «Cache Aside (Lazy Loading)» внутри реализации «репозитория» товаров.
+- **gap.pgsql** — посредствам СУБД PostgreSQL реализован «репозитория» товаров.
+- **gap.nats** — используется server'ом как асинхронный канал для отправки логов об обновлении состояния товаров.
+- **gap.clickhouse** — используется event-listener'ом как хранилище логов.
+
+
+### Как это должно работать «на бумаге» 
 
 Диаграмма последовательностей, демонстрирующая взаимодействий сервисов, при добавлении или обновлении товаров (goods) 
 ```mermaid
@@ -19,10 +39,10 @@ config:
   theme: redux-dark-color
 ---
 sequenceDiagram
-    participant P4 as gap_server
-    participant P5 as pgsql_tx
+    participant P4 as server
+    participant P5 as pgsql(tx)
     participant P1 as nats
-    participant P2 as goods_event_listener
+    participant P2 as event-listener
     participant P3 as clickhouse
     P2 ->> P1: subscribe
     P4 ->> P5: modify_entity
@@ -35,3 +55,9 @@ sequenceDiagram
     P3 -->> P2: ok
 
 ```
+
+### А что дальше?
+
+В проекте не хватает тестов, их нет ни на бизнес-логику, ни на адаптеры, их вообще нет.
+
+Приоритет поставил такой: работающий-некорректный лучше, чем частично-работающий-корректный проект. 
