@@ -30,14 +30,13 @@ func (r *goodsRepository) Find(filter domain.GoodFilter) (domain.Good, error) {
 		return domain.Good{}, errors.New("ID или ProjectID не указан")
 	}
 
-	good, ok := r.cache.Get(domain.Good{
+	if good, ok := r.cache.Get(domain.Good{
 		ID:        filter.ID,
 		ProjectID: filter.ProjectID,
-	})
-	if ok {
+	}); ok {
 		return good, nil
 	}
-
+	var good dbGood
 	err := r.db.Get(&good, `
 		SELECT * FROM goods
 		WHERE id = $1 
@@ -49,9 +48,9 @@ func (r *goodsRepository) Find(filter domain.GoodFilter) (domain.Good, error) {
 		return domain.Good{}, err
 	}
 
-	r.cache.Save(good)
+	r.cache.Save(toDomain(good))
 
-	return good, nil
+	return toDomain(good), nil
 }
 
 func (r *goodsRepository) Update(goodForUpdate domain.GoodForUpdate) (domain.Good, error) {
@@ -59,8 +58,8 @@ func (r *goodsRepository) Update(goodForUpdate domain.GoodForUpdate) (domain.Goo
 		return domain.Good{}, errors.New("ID или ProjectID не указан")
 	}
 
-	var good domain.Good
-	if err := r.db.Select(&good, `
+	var good dbGood
+	if err := r.db.Get(&good, `
 		UPDATE goods
 		    SET name = $2, 
 		        description = $3,
@@ -77,9 +76,9 @@ func (r *goodsRepository) Update(goodForUpdate domain.GoodForUpdate) (domain.Goo
 		return domain.Good{}, err
 	}
 
-	r.cache.Delete(good)
+	r.cache.Delete(toDomain(good))
 
-	return good, nil
+	return toDomain(good), nil
 }
 
 func (r *goodsRepository) Create(goodForSave domain.GoodForCreate) (domain.Good, error) {
@@ -87,16 +86,16 @@ func (r *goodsRepository) Create(goodForSave domain.GoodForCreate) (domain.Good,
 		return domain.Good{}, errors.New("ID или ProjectID не указан")
 	}
 
-	var good domain.Good
-	if err := r.db.Select(&good, `
+	var good dbGood
+	if err := r.db.Get(&good, `
 		INSERT INTO goods (id, project_id, name)
 		VALUES ($1, $2, $3)
-		RETURNING goods.*
+		RETURNING *
 	`, goodForSave.ID, goodForSave.ProjectID, goodForSave.Name); err != nil {
 		return domain.Good{}, err
 	}
 
-	return good, nil
+	return toDomain(good), nil
 }
 
 func (r *goodsRepository) List(filter domain.GoodsFilter) ([]domain.Good, error) {
@@ -105,14 +104,15 @@ func (r *goodsRepository) List(filter domain.GoodsFilter) ([]domain.Good, error)
 		return nil, err
 	}
 
-	var goods []domain.Good
+	var goods []dbGood
 	if err = r.db.Select(&goods, query, args...); err != nil {
 		return nil, err
 	}
 
-	r.cache.Save(goods...)
+	domainGoods := toDomains(goods)
+	r.cache.Save(domainGoods...)
 
-	return goods, nil
+	return domainGoods, nil
 }
 
 func buildQueryList(filter domain.GoodsFilter, forUpdate bool) (string, []any, error) {
@@ -149,6 +149,7 @@ func (r *goodsRepository) InTransaction(fn func(txRepo domain.GoodsRepository) e
 		db:         tx,
 		txBeginner: r.txBeginner,
 		isTx:       true,
+		cache:      r.cache,
 	}
 
 	defer func() {

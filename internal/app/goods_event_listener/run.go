@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	clickhouseGoodsEventStorage "github.com/dsaime/goods-and-projects/internal/adapter/clickhouse_goods_event_storage"
 	natsGoodsEvent "github.com/dsaime/goods-and-projects/internal/adapter/nats_goods_event"
@@ -25,8 +26,11 @@ func Run(ctx context.Context, config Config) error {
 
 	// Прослушивать и сохранять события
 	return listener.Listen(ctx, func(event goodsEvent.Event) {
+		slog.Info("новое событие", "event", fmt.Sprintf("%+v", event))
 		if err := storage.Save(event); err != nil {
+			slog.Error("listener handler: storage.Save: " + err.Error())
 			return
 		}
+		slog.Info("событие сохранено", "event", fmt.Sprintf("%+v", event))
 	})
 }

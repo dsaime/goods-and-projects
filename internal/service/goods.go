@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"math/rand"
 	"time"
 
 	"github.com/dsaime/goods-and-projects/internal/domain"
@@ -56,7 +57,7 @@ func (g *Goods) Goods(in GoodsIn) (GoodsOut, error) {
 
 	return GoodsOut{
 		Meta: GoodsOutMeta{
-			Total:   len(goods),
+			Total:   len(goods), // TODO
 			Removed: countByRemoved(goods),
 			Limit:   in.Limit,
 			Offset:  in.Offset,
@@ -122,7 +123,8 @@ func (g *Goods) CreateGood(in CreateGoodIn) (CreateGoodOut, error) {
 }
 
 func getNewGoodID(repo domain.GoodsRepository, projectID int) int {
-	for randomID := range 10 {
+	for range 10 {
+		randomID := int(rand.Int31())
 		_, err := repo.Find(domain.GoodFilter{
 			ID:        randomID,
 			ProjectID: projectID,

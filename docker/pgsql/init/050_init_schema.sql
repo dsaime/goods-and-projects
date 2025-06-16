@@ -25,9 +25,11 @@ CREATE FUNCTION max_goods_priority()
     RETURNS int
     LANGUAGE sql AS
 $$
-SELECT MAX(priority) + 1
+SELECT COALESCE(MAX(priority) + 1, 0)
 FROM goods
 $$;
 
 ALTER TABLE goods
     ALTER COLUMN priority SET DEFAULT max_goods_priority();
+
+select max_goods_priority();

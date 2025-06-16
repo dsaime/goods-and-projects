@@ -50,7 +50,7 @@ func GoodsUpdate(router http2.Router) {
 		Description string `json:"description"`
 	}
 	router.HandleFunc(
-		"PATH /goods/update",
+		"PATCH /goods/update",
 		middleware.EmptyChain,
 		func(context http2.Context) (any, error) {
 			var rb requestBody

@@ -53,8 +53,14 @@ func Init(cfg Config) (*GoodsCache, error) {
 }
 
 func (g *GoodsCache) Get(key goodsCache.Key) (domain.Good, bool) {
+	slog.Debug("redisGoodsCache.Get",
+		slog.Int("id", key.GetID()),
+		slog.Int("projectID", key.GetProjectID()))
 	b, err := g.client.Get(context.TODO(), strKey(key)).Bytes()
 	if err != nil {
+		slog.Error("redisGoodsCache.Get: "+err.Error(),
+			slog.Int("id", key.GetID()),
+			slog.Int("projectID", key.GetProjectID()))
 		return domain.Good{}, false
 	}
 
@@ -63,6 +69,10 @@ func (g *GoodsCache) Get(key goodsCache.Key) (domain.Good, bool) {
 		return domain.Good{}, false
 	}
 
+	slog.Error("redisGoodsCache.Get: got "+fmt.Sprintf("%+v", good),
+		slog.Int("id", key.GetID()),
+		slog.Int("projectID", key.GetProjectID()),
+	)
 	return good, true
 }
 
@@ -73,6 +83,10 @@ func (g *GoodsCache) Save(goods ...domain.Good) {
 		go func() {
 			defer wg.Done()
 			if b, err := json.Marshal(good); err == nil {
+				slog.Error("redisGoodsCache.Save: "+fmt.Sprintf("%+v", good),
+					slog.Int("id", good.GetID()),
+					slog.Int("projectID", good.GetProjectID()),
+				)
 				g.client.Set(context.TODO(), strKey(good), b, g.expiration)
 			}
 		}()
@@ -84,6 +98,10 @@ func (g *GoodsCache) Delete(keys ...goodsCache.Key) {
 	kk := make([]string, len(keys))
 	for i := range keys {
 		kk[i] = strKey(keys[i])
+		slog.Error("redisGoodsCache.Delete:",
+			slog.Int("id", keys[i].GetID()),
+			slog.Int("projectID", keys[i].GetProjectID()),
+		)
 	}
 
 	g.client.Del(context.TODO(), kk...)
