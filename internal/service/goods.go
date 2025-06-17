@@ -307,6 +307,7 @@ type ReprioritiizeGoodOut struct {
 type ReprioritiizeGoodOutPriority struct {
 	ID       int
 	Priority int
+	//ProjectID int
 }
 
 // ReprioritiizeGood изменяет позицию у товара и двигает приоритет товаров, приоритет которых равен или больше переданному
