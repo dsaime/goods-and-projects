@@ -124,9 +124,9 @@ func getNewGoodID(repo domain.GoodsRepository, projectID int) int {
 	for range 10 {
 		randomID := int(rand.Int31())
 		_, err := repo.Find(domain.GoodFilter{
-			ID:          randomID,
-			ProjectID:   projectID,
-			ShowRemoved: true,
+			ID:           randomID,
+			ProjectID:    projectID,
+			AllowRemoved: true,
 		})
 		if errors.Is(err, domain.ErrGoodNotFound) {
 			return randomID

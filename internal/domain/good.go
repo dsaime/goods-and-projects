@@ -47,11 +47,23 @@ func (g Good) GetProjectID() int {
 	return g.ID
 }
 
+// GoodsRepository представляет собой интерфейс доступа к товарам.
 type GoodsRepository interface {
+	// List возвращает список товаров с учетом фильтрации и информацию по выборке
 	List(filter GoodsFilter) (GoodsListResult, error)
+
+	// Find возвращает товар по составному ключу.
+	// Возвращает ErrGoodNotFound, если такого товара не существует
 	Find(filter GoodFilter) (Good, error)
+
+	// Update обновляет определенные поля товара и возвращает обновленный товар
 	Update(GoodForUpdate) (Good, error)
+
+	// Create создает и возвращает новый товар
 	Create(GoodForCreate) (Good, error)
+
+	// InTransaction оборачивает выполнение переданной функции в транзакцию.
+	// В случае ошибки — откатывает транзакцию, в случае успеха — фиксирует.
 	InTransaction(func(txRepo GoodsRepository) error) error
 }
 
@@ -64,9 +76,9 @@ type GoodsListResult struct {
 
 // GoodFilter представляет собой фильтр для поиска товара.
 type GoodFilter struct {
-	ID          int
-	ProjectID   int
-	ShowRemoved bool
+	ID           int
+	ProjectID    int
+	AllowRemoved bool // Разрешать поиск по удаленным товарам
 }
 
 // GoodForUpdate представляет собой пару идентификаторов товара и новые значения его полей.
@@ -89,7 +101,7 @@ type GoodForCreate struct {
 
 // GoodsFilter представляет собой фильтр списка товаров.
 type GoodsFilter struct {
-	PriorityGreaterThan int
+	PriorityGreaterThan int // Выбирать товары, у которых приоритет выше переданного
 	Limit               int
 	Offset              int
 }

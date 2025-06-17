@@ -42,7 +42,7 @@ func (r *goodsRepository) Find(filter domain.GoodFilter) (domain.Good, error) {
 		WHERE id = $1 
 		  AND project_id = $2 
 		  AND ($3::BOOLEAN OR NOT removed)
-	`, filter.ID, filter.ProjectID, filter.ShowRemoved)
+	`, filter.ID, filter.ProjectID, filter.AllowRemoved)
 	if errors.Is(err, sql.ErrNoRows) {
 		return domain.Good{}, domain.ErrGoodNotFound
 	} else if err != nil {
