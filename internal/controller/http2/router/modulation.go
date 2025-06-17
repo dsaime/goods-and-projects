@@ -41,12 +41,6 @@ func (c *Router) modulation(handle http2.HandlerFuncRW) http.HandlerFunc {
 			w.WriteHeader(httpStatus)
 		}
 
-		// Если ответ это редирект, выполнить редирект
-		if redirect, ok := respData.(http2.Redirect); ok {
-			http.Redirect(w, r, redirect.URL, redirect.Code)
-			return
-		}
-
 		// Если ответ это строка, перезаписать структурой
 		if s, ok := respData.(string); ok {
 			// Если ответ это строка
