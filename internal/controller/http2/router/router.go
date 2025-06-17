@@ -13,6 +13,7 @@ type Router struct {
 	http.ServeMux
 }
 
+// HandleFunc регистрирует обработчик для переданного паттерна и middleware над ним.
 func (c *Router) HandleFunc(pattern string, chain []http2.Middleware, handlerFunc http2.HandlerFunc) {
 	handlerFuncRW := http2.WrapHandlerWithMiddlewares(handlerFunc, chain...)
 	httpHandlerFunc := c.modulation(handlerFuncRW)
