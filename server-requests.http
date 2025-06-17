@@ -31,7 +31,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "name": "{{$random.commerce.productName}}",
+  "name": "{{$random.commerce.productName}}"
 }
 
 ### Изменить приоритет
