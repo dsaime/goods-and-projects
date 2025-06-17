@@ -7,6 +7,6 @@ var (
 	ErrProjectIDMustBeGTZero = errors.New("projectID должен быть больше нуля")
 	ErrPriorityMustBeGTZero  = errors.New("priority должен быть больше нуля")
 	ErrNameMustNotBeEmpty    = errors.New("name не может быть пустым")
-	ErrLimitMustBeGTZero     = errors.New("limit должен быть больше нуля")
+	ErrLimitMustBePositive   = errors.New("limit должен быть равен или больше нуля")
 	ErrOffsetMustBePositive  = errors.New("offset должен быть равен или больше нуля")
 )

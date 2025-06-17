@@ -2,8 +2,8 @@
 @baseUrl = http://localhost:8080
 @id = 1667656536
 @projectId = 1
-@limit=3
-@offset=0
+@limit=0
+@offset=2
 
 ### Check server availability
 GET {{baseUrl}}/ping

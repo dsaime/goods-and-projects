@@ -23,8 +23,8 @@ type GoodsIn struct {
 
 // Validate валидирует значение отдельно каждого параметры
 func (in GoodsIn) Validate() error {
-	if in.Limit <= 0 {
-		return ErrLimitMustBeGTZero
+	if in.Limit < 0 {
+		return ErrLimitMustBePositive
 	}
 	if in.Offset < 0 {
 		return ErrOffsetMustBePositive
@@ -42,15 +42,29 @@ type GoodsOut struct {
 	Goods   []domain.Good
 }
 
+const goodsListDefaultLimit = 10
+
 // Goods возвращает список товаров, с учетом сдвига и лимита
 func (g *Goods) Goods(in GoodsIn) (GoodsOut, error) {
 	if err := in.Validate(); err != nil {
 		return GoodsOut{}, err
 	}
 
+	limit := in.Limit
+	// Если не указано, установить значение по умолчанию
+	if limit == 0 {
+		limit = goodsListDefaultLimit
+	}
+
+	offset := in.Offset
+	// В параметре offset, нумерация элементов начинается с 1
+	if offset > 0 {
+		offset -= 1
+	}
+
 	goodsList, err := g.Repo.List(domain.GoodsFilter{
-		Limit:  in.Limit,
-		Offset: in.Offset,
+		Limit:  limit,
+		Offset: offset,
 	})
 	if err != nil {
 		return GoodsOut{}, err
@@ -59,8 +73,8 @@ func (g *Goods) Goods(in GoodsIn) (GoodsOut, error) {
 	return GoodsOut{
 		Total:   goodsList.Total,
 		Removed: goodsList.Removed,
-		Limit:   in.Limit,
-		Offset:  in.Offset,
+		Limit:   limit,
+		Offset:  offset + 1,
 		Goods:   goodsList.Goods,
 	}, err
 }
