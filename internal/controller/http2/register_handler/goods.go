@@ -6,6 +6,9 @@ import (
 	"github.com/dsaime/goods-and-projects/internal/service"
 )
 
+// GoodsList регистрирует обработчик для получения списка существующих товаров.
+//
+// Метод: GET /goods/list
 func GoodsList(router http2.Router) {
 	router.HandleFunc(
 		"GET /goods/list",
@@ -20,6 +23,9 @@ func GoodsList(router http2.Router) {
 		})
 }
 
+// GoodsCreate регистрирует обработчик для создания товаров.
+//
+// Метод: POST /goods/create
 func GoodsCreate(router http2.Router) {
 	type requestBody struct {
 		Name string `json:"name"`
@@ -44,6 +50,9 @@ func GoodsCreate(router http2.Router) {
 		})
 }
 
+// GoodsUpdate регистрирует обработчик для обновления некоторых полей товаров.
+//
+// Метод: PATCH /goods/update
 func GoodsUpdate(router http2.Router) {
 	type requestBody struct {
 		Name        string `json:"name"`
@@ -70,6 +79,9 @@ func GoodsUpdate(router http2.Router) {
 		})
 }
 
+// GoodsDelete регистрирует обработчик для удаления товаров.
+//
+// Метод: DELETE /goods/remove
 func GoodsDelete(router http2.Router) {
 	router.HandleFunc(
 		"DELETE /goods/remove",
@@ -85,6 +97,9 @@ func GoodsDelete(router http2.Router) {
 		})
 }
 
+// GoodsReprioritiize регистрирует обработчик для обновления приоритета товаров.
+//
+// Метод: PATCH /goods/reprioritiize
 func GoodsReprioritiize(router http2.Router) {
 	type requestBody struct {
 		NewPriority int `json:"newPriority"`
