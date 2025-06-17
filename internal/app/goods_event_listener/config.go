@@ -5,6 +5,7 @@ import (
 	natsGoodsEvent "github.com/dsaime/goods-and-projects/internal/adapter/nats_goods_event"
 )
 
+// Config представляет собой конфигурацию приложения
 type Config struct {
 	Nats       natsGoodsEvent.ListenerConfig
 	Clickhouse clickhouseGoodsEventStorage.Config

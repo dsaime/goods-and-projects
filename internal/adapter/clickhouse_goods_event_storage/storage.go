@@ -11,18 +11,22 @@ import (
 	goodsEvent "github.com/dsaime/goods-and-projects/internal/domain/goods_event"
 )
 
+// Config представляет собой конфигурацию адаптера
 type Config struct {
 	DSN string
 }
 
+// Storage это реализация хранилища событий на основе clickhouse
 type Storage struct {
 	db *sqlx.DB
 }
 
+// Close закрывает соединение с базой данных
 func (s *Storage) Close() error {
 	return s.db.Close()
 }
 
+// Init инициализирует хранилище
 func Init(cfg Config) (*Storage, error) {
 	options, err := clickhouse.ParseDSN(cfg.DSN)
 	if err != nil {

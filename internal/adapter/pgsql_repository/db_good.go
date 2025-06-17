@@ -35,15 +35,3 @@ func toDomains(goods []dbGood) []domain.Good {
 	}
 	return goodsDomain
 }
-
-//func toDB(good domain.Good) dbGood {
-//	return dbGood{
-//		ID:          good.ID,
-//		ProjectID:   good.ProjectID,
-//		Name:        good.Name,
-//		Description: good.Description,
-//		Priority:    good.Priority,
-//		Removed:     good.Removed,
-//		CreatedAt:   good.CreatedAt,
-//	}
-//}

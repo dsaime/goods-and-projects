@@ -6,6 +6,7 @@ import (
 	redisGoodsCache "github.com/dsaime/goods-and-projects/internal/adapter/redis_goods_cache"
 )
 
+// Config представляет собой конфигурацию приложения
 type Config struct {
 	Pgsql    pgsqlRepository.Config
 	Nats     natsGoodsEvent.LoggerConfig

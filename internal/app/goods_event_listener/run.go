@@ -12,6 +12,7 @@ import (
 	goodsEvent "github.com/dsaime/goods-and-projects/internal/domain/goods_event"
 )
 
+// Run запускает приложение
 func Run(ctx context.Context, config Config) error {
 	// Инициализация хранилища событий
 	storage, err := clickhouseGoodsEventStorage.Init(config.Clickhouse)
@@ -31,6 +32,8 @@ func Run(ctx context.Context, config Config) error {
 	return listener.Listen(ctx, eventHandler(storage))
 }
 
+// eventHandler возвращает обработчик событий.
+// Приходящие события сохраняются в хранилище пачками либо по таймеру
 func eventHandler(storage goodsEventStorage) func(event goodsEvent.Event) {
 	var mu sync.Mutex
 	const batchSize = 1000
@@ -68,6 +71,7 @@ func eventHandler(storage goodsEventStorage) func(event goodsEvent.Event) {
 	}
 }
 
+// saveBatch сохраняет пачку событий
 func saveBatch(storage goodsEventStorage, batch []goodsEvent.Event) {
 	if err := storage.Save(batch...); err != nil {
 		slog.Error("listener handler: storage.Save: " + err.Error())

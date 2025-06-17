@@ -16,6 +16,7 @@ type Factory struct {
 	db *sqlx.DB
 }
 
+// Config представляет собой конфигурацию репозитория
 type Config struct {
 	DSN string
 }

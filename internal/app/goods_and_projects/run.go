@@ -6,6 +6,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+// Run запускает приложение
 func Run(ctx context.Context, config Config) error {
 	g, ctx := errgroup.WithContext(ctx)
 

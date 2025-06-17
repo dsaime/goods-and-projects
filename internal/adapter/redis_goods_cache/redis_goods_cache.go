@@ -14,16 +14,19 @@ import (
 	goodsCache "github.com/dsaime/goods-and-projects/internal/port/goods_cache"
 )
 
+// GoodsCache реализует интерфейс кэша товаров
 type GoodsCache struct {
 	expiration time.Duration
 	client     *redis.Client
 	// keymutex.KeyMutex
 }
 
+// Close закрывает соединение с redis
 func (g *GoodsCache) Close() error {
 	return g.client.Close()
 }
 
+// Config представляет собой конфигурацию адаптера
 type Config struct {
 	// RedisURL это строка в формате redis[s]://[[username][:password]@][host][:port][/db-number],
 	// для подключения к redis.
@@ -33,6 +36,7 @@ type Config struct {
 	Expiration time.Duration
 }
 
+// Init инициализирует кэш
 func Init(cfg Config) (*GoodsCache, error) {
 	opts, err := redis.ParseURL(cfg.RedisURL)
 	if err != nil {
