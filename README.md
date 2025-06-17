@@ -57,8 +57,9 @@ sequenceDiagram
     P1 -->> P4: ok
     P1 -->> P2: new_msg
     deactivate P1
-    P2 ->> P3: save(event)
-    P3 ->> P3: insert row
+    P2 ->> P2: batching
+    P2 ->> P3: save(events)
+    P3 ->> P3: insert rows
     P3 -->> P2: ok
 
 ```
