@@ -17,9 +17,6 @@ type HandlerFunc func(Context) (any, error)
 
 // Context определяет интерфейс для доступа к информации о запросе и сессии.
 type Context interface {
-	// RequestID возвращает уникальный идентификатор запроса
-	RequestID() string
-
 	// Request возвращает HTTP-запрос
 	Request() *http.Request
 
