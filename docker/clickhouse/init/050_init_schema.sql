@@ -12,5 +12,5 @@ CREATE TABLE goods
     INDEX name_index Name TYPE set(0) GRANULARITY 1
 )
     ENGINE = MergeTree
-        ORDER BY (Id);
+        ORDER BY (Id, ProjectId, EventTime, Removed);
 
