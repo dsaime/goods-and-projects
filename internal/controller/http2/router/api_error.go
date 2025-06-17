@@ -8,6 +8,7 @@ import (
 	"github.com/dsaime/goods-and-projects/internal/domain"
 )
 
+// errHttpResponse создает ResponseError на основе error и возвращает соответствующий код
 func errHttpResponse(err error) (data ResponseError, httpStatus int) {
 	apiErr := apiErrorFrom(err)
 	responseError := ResponseError{
@@ -22,6 +23,8 @@ func errHttpResponse(err error) (data ResponseError, httpStatus int) {
 	return responseError, errHttpStatus(apiErr)
 }
 
+// errHttpStatus определяет http статус для apiError.Error.
+// Для неопределенных случаев возвращает http.StatusBadRequest
 func errHttpStatus(err apiError.Error) int {
 	switch code := err.Code(); code {
 	case ErrCommonNotFound.Code():
@@ -34,6 +37,8 @@ func errHttpStatus(err apiError.Error) int {
 	}
 }
 
+// apiErrorFrom преобразует ошибку в apiError.Error.
+// Для неизвестных ошибок будет устанавливать код 0
 func apiErrorFrom(err error) apiError.Error {
 	var apiErr apiError.Error
 	if errors.As(err, &apiErr) {
@@ -54,6 +59,6 @@ func apiErrorFrom(err error) apiError.Error {
 
 var (
 	ErrInternalJsonEncode    = apiError.New(1, "errors.internal.jsonEncode")
-	ErrInternalWriteResponse = apiError.New(1, "errors.internal.writeResponse")
+	ErrInternalWriteResponse = apiError.New(2, "errors.internal.writeResponse")
 	ErrCommonNotFound        = apiError.New(3, "errors.common.notFound")
 )

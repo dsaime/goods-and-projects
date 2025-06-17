@@ -15,6 +15,7 @@ var (
 	ErrParseRequestURL         = errors.New("parse request url")
 )
 
+// modulation преобразует http.HandlerFunc в http2.HandlerFuncRW.
 func (c *Router) modulation(handle http2.HandlerFuncRW) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var (
@@ -67,6 +68,7 @@ func (c *Router) modulation(handle http2.HandlerFuncRW) http.HandlerFunc {
 	}
 }
 
+// log логирует ошибку с добавлением параметров запроса.
 func log(lvlFn func(msg string, args ...any), r *http.Request, err error) {
 	lvlFn("modulation: "+err.Error(),
 		slog.String("url", r.RequestURI),
@@ -75,12 +77,14 @@ func log(lvlFn func(msg string, args ...any), r *http.Request, err error) {
 	)
 }
 
+// ResponseError представляет собой ответ в случае ошибки
 type ResponseError struct {
 	Code    int            `json:"code"`
 	Message string         `json:"message"`
 	Details map[string]any `json:"details"`
 }
 
+// ResponseMsg представляет собой ответ, для обработчиков, возвращающих строку вместо структуры
 type ResponseMsg struct {
 	Message string `json:"message"`
 }
