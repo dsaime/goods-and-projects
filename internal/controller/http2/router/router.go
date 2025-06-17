@@ -1,6 +1,7 @@
 package router
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/dsaime/goods-and-projects/internal/controller/http2"
@@ -16,7 +17,7 @@ func (c *Router) HandleFunc(pattern string, chain []http2.Middleware, handlerFun
 	handlerFuncRW := http2.WrapHandlerWithMiddlewares(handlerFunc, chain...)
 	httpHandlerFunc := c.modulation(handlerFuncRW)
 	c.ServeMux.HandleFunc(pattern, httpHandlerFunc)
-	//slog.Info("Router: Зарегистрирован новый обработчик",
-	//	slog.String("pattern", pattern),
-	//)
+	slog.Info("Router.HandleFunc: Зарегистрирован новый обработчик",
+		slog.String("pattern", pattern),
+	)
 }
