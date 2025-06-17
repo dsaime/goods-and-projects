@@ -11,6 +11,7 @@ import (
 	goodsCache "github.com/dsaime/goods-and-projects/internal/port/goods_cache"
 )
 
+// goodsRepository это реализация интерфейс доступа к товарам.
 type goodsRepository struct {
 	db interface {
 		NamedExec(query string, arg interface{}) (sql.Result, error)
@@ -21,7 +22,7 @@ type goodsRepository struct {
 	txBeginner interface {
 		Beginx() (*sqlx.Tx, error)
 	}
-	isTx  bool
+	isTx  bool // Признак выполнения в транзакции
 	cache goodsCache.GoodsCache
 }
 
@@ -136,6 +137,7 @@ func (r *goodsRepository) List(filter domain.GoodsFilter) (domain.GoodsListResul
 	}, nil
 }
 
+// buildQueryList составляет sql-запрос товаров с учетом фильтрации
 func buildQueryList(filter domain.GoodsFilter, forUpdate bool) (query string, args []any, err error) {
 	selFrom := bqb.New("SELECT * FROM goods")
 
@@ -158,6 +160,7 @@ func buildQueryList(filter domain.GoodsFilter, forUpdate bool) (query string, ar
 	return q.ToPgsql()
 }
 
+// buildQueryListMeta составляет sql-запрос мета-информации по фильтрации
 func buildQueryListMeta(filter domain.GoodsFilter) (query string, args []any, err error) {
 	selFrom := bqb.New(`
 		SELECT COUNT(1) AS total,
