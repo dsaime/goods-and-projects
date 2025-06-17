@@ -24,10 +24,10 @@ type GoodsIn struct {
 // Validate валидирует значение отдельно каждого параметры
 func (in GoodsIn) Validate() error {
 	if in.Limit <= 0 {
-		return errors.New("limit must be positive and greater than 0")
+		return ErrLimitMustBeGTZero
 	}
 	if in.Offset < 0 {
-		return errors.New("offset must be positive")
+		return ErrOffsetMustBePositive
 	}
 
 	return nil
@@ -74,10 +74,10 @@ type CreateGoodIn struct {
 // Validate валидирует значение отдельно каждого параметры
 func (in CreateGoodIn) Validate() error {
 	if in.ProjectID <= 0 {
-		return errors.New("projectID is required")
+		return ErrPriorityMustBeGTZero
 	}
 	if in.Name == "" {
-		return errors.New("name is required")
+		return ErrNameMustNotBeEmpty
 	}
 
 	return nil
@@ -147,13 +147,13 @@ type UpdateGoodIn struct {
 // Validate валидирует значение отдельно каждого параметры
 func (in UpdateGoodIn) Validate() error {
 	if in.ID <= 0 {
-		return errors.New("GetID is required")
+		return ErrIDMustBeGTZero
 	}
 	if in.ProjectID <= 0 {
-		return errors.New("projectID is required")
+		return ErrProjectIDMustBeGTZero
 	}
 	if in.Name == "" {
-		return errors.New("name must not be empty")
+		return ErrNameMustNotBeEmpty
 	}
 
 	return nil
@@ -211,10 +211,10 @@ type DeleteGoodIn struct {
 // Validate валидирует значение отдельно каждого параметры
 func (in DeleteGoodIn) Validate() error {
 	if in.ID <= 0 {
-		return errors.New("GetID is required")
+		return ErrIDMustBeGTZero
 	}
 	if in.ProjectID <= 0 {
-		return errors.New("projectID is required")
+		return ErrProjectIDMustBeGTZero
 	}
 
 	return nil
@@ -287,13 +287,13 @@ type ReprioritiizeGoodIn struct {
 // Validate валидирует значение отдельно каждого параметры
 func (in ReprioritiizeGoodIn) Validate() error {
 	if in.ID <= 0 {
-		return errors.New("GetID is required")
+		return ErrIDMustBeGTZero
 	}
 	if in.ProjectID <= 0 {
-		return errors.New("projectID is required")
+		return ErrProjectIDMustBeGTZero
 	}
 	if in.NewPriority <= 0 {
-		return errors.New("newPriority is required")
+		return ErrPriorityMustBeGTZero
 	}
 
 	return nil
