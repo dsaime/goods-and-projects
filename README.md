@@ -31,7 +31,7 @@ make compose-up
 docker-compose скрипты лежат в директории **./docker**, в корне этой директории есть docker-compose файл, 
 который запускает вышеописанные сервисы, а рядом директории со вспомогательными файлами для этих сервисов (миграции для бд).
 
-В той же директории есть сервис **adminer**, расположен по пути **docker/adminer/docker-compose.yaml** — это web-ui для pgsql, подробнее [тут](https://hub.docker.com/_/adminer/). 
+В той же директории есть сервис **adminer**, расположен по пути **docker/adminer/docker-compose.yaml** — это web-ui для pgsql, подробнее [тут](https://hub.docker.com/_/adminer/).
 
 ### Как это должно работать «на бумаге» 
 
@@ -62,6 +62,19 @@ sequenceDiagram
     P3 -->> P2: ok
 
 ```
+
+### Как протестировать
+
+Убедиться в корректности логики, можно, лишь выполнив ручное тестирование.
+
+Для этого:
+- Запустить docker-compose сервисы (**make compose-up**).
+- Отправлять http/rest запросы на baseUrl http://localhost:8080/. 
+Поддерживаемые запросы можно посмотреть в файле **server-requests.http** (IDEA http client) 
+либо в объявлении обработчиков (**internal/controller/http2/register_handler**).
+- _*если запущен сервис **docker/adminer**_, то наблюдать состояние БД pgsql в web-ui по адресу http://localhost:8085/
+- Наблюдать историю обновления товаров в clickhouse.
+
 
 ### А что дальше?
 
